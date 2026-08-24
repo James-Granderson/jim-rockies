@@ -1,0 +1,55 @@
+{
+  "events": [
+    {
+      "event_id": "test123",
+      "event_date": "2026-08-22T19:10:00Z",
+      "teams": [
+        {
+          "name": "Detroit",
+          "mascot": "Tigers",
+          "abbreviation": "DET",
+          "is_home": false,
+          "is_away": true
+        },
+        {
+          "name": "Kansas City",
+          "mascot": "Royals",
+          "abbreviation": "KC",
+          "is_home": true,
+          "is_away": false
+        }
+      ],
+      "odds": {
+        "moneyline": [
+          {
+            "book": "Book A",
+            "DET": 135,
+            "KC": -155
+          },
+          {
+            "book": "Book B",
+            "DET": 140,
+            "KC": -160
+          }
+        ],
+        "runline": [
+          {
+            "book": "Book A",
+            "DET": 1.5,
+            "DET_odds": -155,
+            "KC": -1.5,
+            "KC_odds": 135
+          }
+        ],
+        "total": [
+          {
+            "book": "Book A",
+            "line": 8.5,
+            "over": -110,
+            "under": -110
+          }
+        ]
+      }
+    }
+  ]
+}
