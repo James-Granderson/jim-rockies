@@ -2,7 +2,7 @@
 
 ## 1. Decimals and Percentages
 
-Ultimate tip: Use knowledge
+Philosophy tip: Use knowledge. Understand the power of what you read. Such as the = sign in code and in real life.
 
 A decimal represents a fraction of 1.
 
@@ -34,7 +34,6 @@ Example:
 
 35 / 100 = 0.35
 
-
 ## 2. Why We Use Decimals in Programming
 
 Computers often represent proportions as decimals because
@@ -47,7 +46,6 @@ probability = 0.35
 This means:
 
 probability = 35%
-
 
 ## 3. Important Mental Model
 
@@ -63,9 +61,9 @@ So:
 
 😂 Got you. **Game-screen mode.** No skipping invisible steps.
 
-
-
 ---
+
+
 
 # 🎮 ARB MATH — EXECUTION SCREEN
 
@@ -79,6 +77,8 @@ Functions:     NONE
 Python begins reading line 1.
 
 ---
+
+
 
 ### MOVE 1 — CREATE FUNCTION
 
@@ -102,6 +102,8 @@ Variables:
 
 ---
 
+
+
 ### MOVE 2 — CREATE FUNCTION
 
 ```python
@@ -122,6 +124,8 @@ Variables:
 ```
 
 ---
+
+
 
 ### MOVE 3 — CREATE FUNCTION
 
@@ -145,6 +149,8 @@ Now we've finished defining the tools.
 
 ---
 
+
+
 # 🎮 PLAYER INPUT
 
 Python reaches:
@@ -152,6 +158,8 @@ Python reaches:
 ```python
 odds_a = float(input("Enter American odds for outcome A: "))
 ```
+
+
 
 ### MOVE 4 — CALL `input()`
 
@@ -188,6 +196,8 @@ is **text**.
 
 ---
 
+
+
 ### MOVE 5 — CALL `float()`
 
 Python immediately feeds `"200"` into:
@@ -208,6 +218,8 @@ Then assignment happens:
 odds_a = 200.0
 ```
 
+
+
 ### STATE
 
 ```text
@@ -216,7 +228,11 @@ odds_a = 200.0
 
 ---
 
+
+
 # 🎮 SECOND INPUT
+
+
 
 ### MOVE 6 — CALL `input()`
 
@@ -238,6 +254,8 @@ You type:
 
 ---
 
+
+
 ### MOVE 7 — CALL `float()`
 
 ```python
@@ -256,6 +274,8 @@ Then:
 odds_b = 300.0
 ```
 
+
+
 ### STATE
 
 ```text
@@ -265,7 +285,11 @@ odds_b = 300.0
 
 ---
 
+
+
 # 🎮 CONVERSION
+
+
 
 ### MOVE 8 — CALL FUNCTION
 
@@ -291,6 +315,8 @@ odds = 200.0
 
 ---
 
+
+
 ### MOVE 9 — CHECK CONDITION
 
 ```python
@@ -312,6 +338,8 @@ TRUE
 So Python takes the `if` branch.
 
 ---
+
+
 
 ### MOVE 10 — CALCULATE
 
@@ -339,6 +367,8 @@ Then:
 
 ---
 
+
+
 ### MOVE 11 — RETURN
 
 ```python
@@ -357,6 +387,8 @@ Therefore:
 decimal_a = 3.0
 ```
 
+
+
 ### STATE
 
 ```text
@@ -367,7 +399,11 @@ decimal_a = 3.0
 
 ---
 
+
+
 # 🎮 SECOND CONVERSION
+
+
 
 ### MOVE 12
 
@@ -415,6 +451,8 @@ Assignment:
 decimal_b = 4.0
 ```
 
+
+
 ### STATE
 
 ```text
@@ -426,7 +464,11 @@ decimal_b = 4.0
 
 ---
 
+
+
 # 🎮 PROBABILITY
+
+
 
 ### MOVE 13
 
@@ -454,6 +496,8 @@ probability_a = 0.3333333333...
 
 ---
 
+
+
 ### MOVE 14
 
 ```python
@@ -478,6 +522,8 @@ Assignment:
 probability_b = 0.25
 ```
 
+
+
 ### STATE
 
 ```text
@@ -491,7 +537,11 @@ probability_b  = 0.25
 
 ---
 
+
+
 # 🎮 ARBITRAGE FUNCTION
+
+
 
 ### MOVE 15 — CALL
 
@@ -513,6 +563,8 @@ decimal_odds_b = 4.0
 ```
 
 ---
+
+
 
 ### MOVE 16 — CALCULATE
 
@@ -542,6 +594,8 @@ Result:
 
 ---
 
+
+
 ### MOVE 17 — RETURN
 
 Function returns:
@@ -562,6 +616,8 @@ Assignment:
 arb = 0.583333...
 ```
 
+
+
 ### FINAL STATE
 
 ```text
@@ -579,6 +635,8 @@ arb            = 0.583333...
 
 ---
 
+
+
 # 🎮 DISPLAY
 
 Now Python executes:
@@ -586,6 +644,8 @@ Now Python executes:
 ```python
 print "Implied Probability A:", probability_a * 100, "%"
 ```
+
+
 
 ### MOVE 18
 
@@ -636,6 +696,8 @@ Implied Probability B: 25.0 %
 
 ---
 
+
+
 ### MOVE 19 — ARBITRAGE PERCENTAGE
 
 ```python
@@ -661,6 +723,8 @@ Arbitrage Percentage: 58.3333333333 %
 ```
 
 ---
+
+
 
 ### MOVE 20 — BOOLEAN TEST
 
@@ -690,6 +754,8 @@ Arbitrage: True
 
 ---
 
+
+
 # 🏁 GAME OVER
 
 Final output:
@@ -717,3 +783,11 @@ CREATE
 ```
 
 Because that's the actual execution story.
+
+
+
+Self notes:
+
+
+
+Programming is files, data, declarations and relationships. Always remember that. Formal logic applies here too, your specialty. Think of the overal task.

@@ -1,0 +1,65 @@
+Overview
+
+You work across several long-term projects that combine analytical thinking, writing, programming, and sports analysis. You prefer preserving your own reasoning and voice instead of having it rewritten, and you often build structured frameworks that you can expand over time. Your current interests include Python development, book writing, philosophy and economics, sports analytics, and continuing orthodontic treatment.
+
+Current Projects
+
+One of your main active software projects is a Python sports betting analysis and hedging model centered on `arb_math.py` and `hedge_range.py`. The project goes beyond traditional arbitrage: it is designed to evaluate high expected value positions while intelligently hedging the lower-EV side instead of simply maximizing guaranteed profit. The model converts American odds to decimal odds internally, uses `arb_math.py` for odds conversion, payout, implied probability, and arb index calculations, and uses `hedge_range.py` to analyze allocations between two outcomes for a fixed total stake. You want separate outputs such as a Best Arb Position, a Maximum Profit Position, and especially a High-EV Position that reflects strong conviction in one side while minimizing unnecessary downside. You have also discussed building supporting tools around this project, including API integration and routing utilities.
+
+Writing Style and Books
+
+Your primary writing project is a book titled "The Pretend State," with an internal interlude called "The Tsukuyomi." You prefer drafting by freely explaining your ideas first and then refining them while preserving your sentence structure, reasoning, and conversational voice. You generally want edits limited to grammar, spelling, and punctuation unless you explicitly request deeper revision. For technical or statistical subjects, you prefer careful verification and logically rigorous arguments. Your writing framework emphasizes realizations, material causes, correlatives, concrete examples, and plain English over formulaic AI prose.
+
+Learning and Technical Interests
+
+You enjoy building strong conceptual foundations before moving into implementation. Your interests include Python, Linux, SQL, terminal workflows, VS Code, mathematics, discrete structures, and software design. You have previously worked through C++ data structure assignments and have discussed creating reusable notes and reference files to support your technical projects. When learning mathematical concepts, you prefer explanations that connect formulas to intuitive reasoning rather than presenting equations without context.
+
+Personal Background
+
+You have spent considerable time on orthodontic treatment and recently reached the point where you were cleared to chew again after jaw surgery, while continuing with orthodontic work. You also enjoy fitness and basketball, including hypertrophy training, pickup games, and improving basketball technique. Your broader interests extend into philosophy, economics, and developing original analytical frameworks, including work on projects such as Yggdrasil and your own conceptual theories.
+
+guildmaster99@\h:\w $ find . -maxdepth 4 -print
+.
+./test_data.json
+./scraper.py
+./config.py
+./chatgptmemory.txt
+./arb_math.pyc
+./config.pyc
+./hedge_range.py
+./jim_rockies.py
+./display.py
+./hedge_range.pyc
+./Notes
+./Notes/math_notes.md
+./arb_math.py
+./readme.txt
+./.git
+./.git/config
+./.git/objects
+./.git/objects/pack
+./.git/objects/info
+./.git/HEAD
+./.git/info
+./.git/info/exclude
+./.git/description
+./.git/hooks
+./.git/hooks/commit-msg.sample
+./.git/hooks/pre-rebase.sample
+./.git/hooks/pre-commit.sample
+./.git/hooks/applypatch-msg.sample
+./.git/hooks/fsmonitor-watchman.sample
+./.git/hooks/pre-receive.sample
+./.git/hooks/prepare-commit-msg.sample
+./.git/hooks/post-update.sample
+./.git/hooks/pre-merge-commit.sample
+./.git/hooks/pre-applypatch.sample
+./.git/hooks/pre-push.sample
+./.git/hooks/update.sample
+./.git/hooks/push-to-checkout.sample
+./.git/refs
+./.git/refs/heads
+./.git/refs/tags
+./hedge_test.py
+./event_arb.py
+./get_test.py
