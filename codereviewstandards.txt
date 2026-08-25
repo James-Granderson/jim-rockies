@@ -1,0 +1,59 @@
+1. Inspect for duplication first.
+
+If the system already knows, calculates, stores, or determines something, don't make another component independently reproduce that knowledge without a reason.
+
+Duplication must have a rationale. If there is no reason for it, remove it or move the responsibility to the appropriate component.
+
+2. Inspect memory allocation.
+
+Ask what information the system is holding, where it is held, how long it needs to exist, and whether it needs to exist at all.
+
+Do not treat stored state as free. Every piece of retained information should have a rationale.
+
+
+3. Inspect temporal access.
+
+Use MDATO — Memory, Data, Access, Transitions, Output.
+
+Ask:
+- What does the system remember?
+- What data does it contain?
+- Who or what can access that data?
+- How does the data transition or transform?
+- What does the system ultimately output?
+
+Consider not only what can access information, but when that access is possible and when it ceases to be relevant.
+
+4. Optimize for efficiency with intention.
+
+Efficiency is not synonymous with minimalism. Go lean when the system benefits from being lean; bulk when additional structure, capacity, redundancy, or computation serves a purpose.
+
+Optimize according to the objective, the constraints, and the circumstances.
+
+Prudence determines what should be optimized, how aggressively it should be optimized, and whether optimization is warranted at all.
+
+5. Inspect time complexity.
+
+Ask how the computational cost of an operation changes as the amount of input grows.
+
+Identify operations whose time requirements scale poorly, and determine whether that cost is justified by the system's purpose and constraints.
+
+Do not optimize complexity for its own sake. An inefficient algorithm may be perfectly appropriate for a small or bounded input, while an apparently reasonable operation may become a serious problem at scale.
+
+6. Label.
+
+Identify what each component is supposed to be and what responsibility it is supposed to hold.
+
+
+Review top-down: identify the system, inventory its components, label their intended identities and relationships, then compare those labels against what the code actually does.
+
+Identity precedes location. Know what something is by it's label/psuedocode before determining where its responsibilities belong. Can't label it? You probably don't know it.
+REVIEW ENTRY
+
+1. Inventory the files.
+2. Identify what each file is supposed to do.
+3. Identify how the files relate to one another.
+4. Trace the major flow of data through the system.
+5. Only then apply the review standards where they are relevant.
+
+Label → understand the system → choose the tool → inspect → decide.
