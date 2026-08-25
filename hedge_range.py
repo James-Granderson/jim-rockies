@@ -35,13 +35,6 @@ def analyze_range(odds_a, odds_b, total_stake):
 
     index = arb_math.arb_index(decimal_a, decimal_b)
 
-    if index < 1:
-        odds_status = "ARBITRAGE"
-    elif index == 1:
-        odds_status = "NET ZERO"
-    else:
-        odds_status = "NO ARB"
-
     scale = []
 
     for stake_a in range(int(total_stake) + 1):
@@ -66,7 +59,7 @@ def analyze_range(odds_a, odds_b, total_stake):
             "best": best
         })
 
-    return index, odds_status, scale
+    return index, scale
 
 
 def find_best_arb(scale):
