@@ -47,6 +47,7 @@ The initial system will focus on several core calculations:
 * Comparison between pregame and live prices
 * Measurement of live price movement
 * Identification of potential arbitrage transitions
+* General Probability (Including Player Props)
 
 Later versions can incorporate additional information into the analysis, including team and player statistics, injuries, lineups, historical performance, game-state variables, and internally calculated win probabilities. These components would provide an additional probability model that could be compared against the probability represented by the market price.
 
