@@ -16,10 +16,10 @@ Do not treat stored state as free. Every piece of retained information should ha
 Use MDATO — Memory, Data, Access, Transitions, Output.
 
 Ask:
-- What does the system remember?
-- What data does it contain?
+- What is in memory?
+- What data does the system contain?
 - Who or what can access that data?
-- How does the data transition or transform?
+- How does the data transition or transform from one place to another?
 - What does the system ultimately output?
 
 Consider not only what can access information, but when that access is possible and when it ceases to be relevant.
