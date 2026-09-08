@@ -1,4 +1,4 @@
-Jim Rockies (ChatGpt Project Overview)
+Jim Rockies Overview
 
 Jim Rockies is a quantitative sports-market analysis project focused on the mathematical analysis of sportsbook pricing, live market movement, arbitrage conditions, and asymmetric position structures.
 
