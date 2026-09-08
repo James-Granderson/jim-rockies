@@ -59,7 +59,6 @@ So:
 
 0.35 = 35/100 = 35%
 
-😂 Got you. **Game-screen mode.** No skipping invisible steps.
 
 ---
 
