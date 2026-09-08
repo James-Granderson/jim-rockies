@@ -26,7 +26,7 @@ Consider not only what can access information, but when that access is possible 
 
 4. Optimize for efficiency with intention.
 
-Efficiency is not synonymous with minimalism. Go lean when the system benefits from being lean; bulk when additional structure, capacity, redundancy, or computation serves a purpose.
+Efficiency is not synonymous with rigid minimalism. Go lean when the system benefits from being lean; bulk when additional structure, capacity, redundancy, or computation serves a purpose.
 
 Optimize according to the objective, the constraints, and the circumstances.
 
@@ -44,16 +44,16 @@ Do not optimize complexity for its own sake. An inefficient algorithm may be per
 
 Identify what each component is supposed to be and what responsibility it is supposed to hold.
 
-
 Review top-down: identify the system, inventory its components, label their intended identities and relationships, then compare those labels against what the code actually does.
 
-Identity precedes location. Know what something is by it's label/psuedocode before determining where its responsibilities belong. Can't label it? You probably don't know it.
-REVIEW ENTRY
+Identity precedes the determination of location. Know what something is by it's label or pseudo-code before determining where its responsibilities belong. If you can't label it? You probably don't know it.
+
+HOW TO USE THESE METHODS TO REVIEW:
 
 1. Inventory the files.
 2. Identify what each file is supposed to do.
 3. Identify how the files relate to one another.
 4. Trace the major flow of data through the system.
-5. Only then apply the review standards where they are relevant.
+5. Apply the review standards where they are relevant.
 
-Label → understand the system → choose the tool → inspect → decide.
+Label → Locate → choose the tool → inspect → decide.
