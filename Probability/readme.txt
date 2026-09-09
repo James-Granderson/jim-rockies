@@ -1,9 +1,3 @@
-Here is the Probability system explanation rewritten to match the style and structure of your Jim Rockies README. It is factual, direct, and organized into clear sections with a tutorial-like precision.
-
----
-
-Probability
-
 The Probability system is the component of Jim Rockies responsible for estimating the probability of an underlying proposition. Rather than beginning with a prediction or a statistical formula, the system begins with the proposition itself and attempts to determine what would have to be true for that proposition to occur.
 
 A proposition is a statement about an observable outcome. For example, a player prop such as "Jackson Chourio records two or more total bases" is a proposition that must either become true or remain false. The system identifies what the proposition describes, what action is involved, what outcome is required, and what conditions surround that action.
