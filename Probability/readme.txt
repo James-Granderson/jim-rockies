@@ -36,7 +36,7 @@ Relationships and Frequency
 
 The system is particularly concerned with relationships between conditions and outcomes. If a condition changes, the system examines whether the frequency of an outcome also changes. If a relationship is sufficiently consistent and relevant, it becomes evidence used in the probability calculation.
 
-Frequency is an important component. An observed frequency represents how often an outcome has occurred under a defined set of conditions. A high frequency does not guarantee the next occurrence, but it provides evidence about the underlying probability when the observations are sufficiently relevant, comparable, and stable.
+Frequency is an important component. An observed frequency represents how often an outcome has occurred under a defined set of conditions. A high frequency does not guarantee the next occurrence, but it provides evidence about real probability when the observations are sufficiently relevant, comparable, and stable.
 
 The system looks at reality game by game when that information is available. It does not treat the dataset as one undifferentiated mass of numbers. Individual observations retain their conditions and relationships.
 
