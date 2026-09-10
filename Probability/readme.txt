@@ -14,7 +14,7 @@ Attributable means the information must be connected to its source. An observati
 
 Measurable means the identified thing can be represented numerically. If a thing cannot be counted, compared, or analyzed quantitatively, it cannot be treated as quantitative information. We do not invent for convenience sake.
 
-These requirements establish a boundary around the system. Jim Rockies avoids the common fallacies other systems make by attempting to compress reality into a single number merely because that number is easier to use. The system must remain capable of returning from the number to the thing that produced it.
+These requirements establish a boundary around the system. Jim Rockies avoids common fallacies other statistical systems make by attempting to compress reality into a single number merely because that number is easier to use. The system must remain capable of returning from the number to the thing that produced it.
 
 Data and Evidence
 
@@ -44,6 +44,42 @@ For example, a player may perform well against one type of defensive coverage an
 
 If the proposition is Jackson Chourio recording two or more total bases, the system examines the player, his opportunities, the opposing pitcher, the pitcher's characteristics, handedness, ballpark, lineup position, expected playing time, the prop itself and other identifiable conditions. Each condition must earn its place through demonstrated relevance. The objective is to cover the relevant bases, not to repetitively collect every available statistic.
 
+
+Distribution
+
+Before assigning probability to a proposition, the system must understand the distribution of outcomes from which that proposition is drawn.
+
+Every measurable proposition exists within some range of possible outcomes. A player can record different numbers of carries, targets, receptions, yards, strikeouts, hits, total bases, or other measurable results. Those results are not equally likely, and they are not independent of the conditions surrounding the proposition. The distribution describes how outcomes occur across that range.
+
+This is why an average alone is insufficient. An average is a description of a distribution, but it does not describe the distribution completely. Two players can have the same average while producing very different results. One may consistently produce outcomes near the average while another may alternate between very high and very low results. The same average can therefore exist within very different realities.
+
+Jim Rockies seeks to understand the distribution itself rather than using the average as a substitute for it. We avoid the common error of hyper-fixating on averages, and instead focus outcomes may be distributed, how frequently different outcomes may occurred, and what conditions may be accompanied by them.
+
+The proposition determines which portion of the distribution is relevant. If a player has a total-bases line of 1.5, the system is concerned with the portion of the distribution in which the player records two or more total bases. If a player has a rushing-yard line of 55.5, the relevant distinction is between outcomes below and above that boundary. 
+
+Distribution is therefore inseparable from the conditions that produce it. A player's opportunities, role, opponent, environment, health, and other measurable conditions can drastically change the frequency with which different outcomes occur. When those conditions change, the distribution may change with them. The system therefore does not assume that a historical distribution remains fixed when the circumstances producing it have materially changed.
+
+The purpose of examining distribution is not to eliminate randomness. Randomness remains present in the events being modeled. Rather, the purpose is to distinguish the range of outcomes that can occur from the relative frequency with which those outcomes occur under identifiable conditions. A distribution gives the system a way to represent uncertainty without pretending that uncertainty is ignorance.
+
+The system therefore moves from the observable outcome to the distribution of observable outcomes. It asks what results have occurred, how those results have been distributed, under what conditions they occurred, and whether the current proposition exists within a comparable distribution. Probability is then derived from the relevant portion of that distribution rather than imposed upon the outcome beforehand.
+
+
+States and Causal Generation
+
+Before evaluating historical outcomes, the system must account for the specific game state and causal mechanisms that generated them. A single metric or stat line can be produced by vastly different realities. Treating all historical outcomes as interchangeable ignores how game dynamics alter probability.
+
+Game states—such as score differentials, remaining time, line changes, and tactical shifts—can frequently force teams off script. When a game state changes, decision-making rules and probability of outcomes change with it. A team trailing by twenty points in the fourth quarter does not necessarily operate within the same structural framework as one leading by three. As a result, identical statistics accumulated under fundamentally different game states belong to separate operational environments.
+
+Furthermore, a proposition line can be cleared through multiple distinct pathways, some of which are deceptive due to the underlying distribution that produced them. An outcome can be the result of skill execution or sheer variance:
+
+A batter may record a hit on a weak ground ball with an Expected Batting Average (xBA) of .100 simply because it found an undefended zone in the infield.
+
+A basketball player may clear a points line due to an anomalous string of late-game intentional fouls rather than steady offensive efficiency.
+
+Evaluating these events purely by their final result creates a false signal. The system seeks to flush out noisy data by focusing on what actually produced an outcome rather than the outcome in isolation. We avoid the pitfall of taking surface results at face value by continually asking: "What caused what happened?" rather than merely observing "What result occurred?"
+
+
+
 Limits of Knowledge
 
 The system distinguishes between an observation and an inference from that observation. A single game may provide an accurate observation while providing weak evidence about future performance. A larger body of comparable observations may provide stronger evidence.
@@ -52,13 +88,15 @@ The future is not directly observable. Jim Rockies does not claim information it
 
 This is an important limitation. Watching a game can reveal information that a dataset does not contain. The primary objective is to determine what can be known from the available information and to quantify it as accurately as possible.
 
-All information exists in the present and is derived from observations, measurements, relationships, and forecasts available at the time the proposition is evaluated. The problem is not past versus future. The problem is ignorance versus information. No system cannot observe the future directly. Therefore realistically, we can only use present knowledge to estimate the distribution of possible future outcomes.
+All information exists in the present, derived entirely from observations, measurements, relationships, and forecasts available at the moment a proposition is evaluated. Because no system can observe the future directly, we must rely on present knowledge to estimate the distribution of possible future outcomes. 
+
+A common mistake in betting is assuming that past observations are misleading—often a knee-jerk reaction to a recent losing streak. The true issue, however, is not the past itself, but a lack of information versus genuine insight. A comprehensive view of a player’s historical consistency provides valuable context, even though a tough matchup, line movement, or structural change can alter the equation. Crucially, evaluating those external variables also relies entirely on historical data. To pretend that forecasting is about predicting the future using future information is a fallacy. We predict the future based on the past, just as any rational creature expects the sun to rise every morning.
 
 As we all know, randomness exists in the events being modeled. The objective with our system is to eliminate as much ignorance as possible in order to reduce said randomness. There is a key distinction between something being unknowable and something being unknown because we have failed to investigate available information. Jim Rockies attempts to remove the second.
 
 Decomposition and Conditional Probability
 
-For a player prop, the system decomposes the proposition into the actions and opportunities that can produce the required result. A total-bases proposition can depend upon the number of plate appearances, the probability of reaching base, the type of hit produced, the opposing pitcher, pitch selection, handedness, ballpark, weather, lineup position, and other conditions. These are not merely variables in a model. They are descriptions of things that happen in reality. The system identifies those things first and then determines how they can be measured and related to the outcome.
+For a player prop, the system decomposes the proposition into the actions and opportunities that can produce the required result. A total-bases proposition can depend upon the number of plate appearances, the probability of reaching base, the type of hit produced, the opposing pitcher, pitch selection, handedness, ballpark, weather, lineup position, and other conditions. The system identifies those things first and then determines how they can be measured and related to the outcome. We ask a mere simple question: How difficult is this proposition to achieve given a set of conditions?
 
 Probability is treated as conditional rather than universal. The probability of an outcome depends upon the information available about the conditions surrounding it. The system accounts for uncertainty in the quality of its own evidence. Sample size, comparability, context, opportunity, health, opponent strength, role, and game conditions affect how much weight an observation should receive.
 
