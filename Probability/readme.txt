@@ -94,11 +94,38 @@ A common mistake in betting is assuming that past observations are misleading—
 
 As we all know, randomness exists in the events being modeled. The objective with our system is to eliminate as much ignorance as possible in order to reduce said randomness. There is a key distinction between something being unknowable and something being unknown because we have failed to investigate available information. Jim Rockies attempts to remove the second.
 
+
+Over Time
+
+The system is ultimately concerned with what can be obtained over time rather than what must happen on any individual attempt.
+
+A proposition exists within a distribution, and a distribution contains outcomes that will occur with different frequencies. A favorable proposition can therefore fail on an individual occasion without invalidating the evidence that made it favorable. Randomness does not invalidate probability, randomness is the very reason probability exists. If outcomes were entirely deterministic and predictable, probability would be unnecessary, as every event would occur with total certainty. Because real-world events contain noise, variance, and unobservable variables, we cannot predict exact individual outcomes. Probability provides the mathematical framework to model this underlying uncertainty, enabling us to measure expected frequencies and make rational decisions over repeated trials despite short-term randomness. What actually matters here isn't hitting on every single prediction. What matters is what can genuinely be derived over repeated observations of comparable propositions.
+
+If a player is evaluated against the same nominal proposition five times, the system does not expect the player to produce the same result five times. It asks what the distribution indicates across those attempts. If the available evidence suggests that the player will exceed the proposition with sufficient frequency, an individual failure does not erase that relationship. Likewise, a single successful outcome does not establish that the proposition was favorable.
+
+This distinction prevents the system from confusing outcome with knowledge. A result tells us what happened on that occasion. It does not by itself tell us whether the probability assessment was correct.
+
+Over time, repeated observations allow the system to compare what was expected with what actually occurred. 
+
+This is also why the system does not abandon a proposition merely because of a random losing outcome. If the relevant state, distribution, and conditions remain sufficiently comparable, the loss is an observation within the distribution rather than a refutation of it. The system must remain capable of distinguishing a bad result from bad reasoning.
+
+The question therefore becomes one of accumulation. What information can be retained? What relationships can be demonstrated repeatedly? What distributions remain stable? What states produce materially different results? What can be obtained when the same type of proposition is evaluated again and again?
+
+Over time, this accumulated knowledge becomes more important than any individual result.
+
+Instead of reductively asking, “Will this happen?”
+
+We ask:
+
+"What can I genuinely produce over time?"
+
+
 Decomposition and Conditional Probability
 
 For a player prop, the system decomposes the proposition into the actions and opportunities that can produce the required result. A total-bases proposition can depend upon the number of plate appearances, the probability of reaching base, the type of hit produced, the opposing pitcher, pitch selection, handedness, ballpark, weather, lineup position, and other conditions. The system identifies those things first and then determines how they can be measured and related to the outcome. We ask a mere simple question: How difficult is this proposition to achieve given a set of conditions?
 
 Probability is treated as conditional rather than universal. The probability of an outcome depends upon the information available about the conditions surrounding it. The system accounts for uncertainty in the quality of its own evidence. Sample size, comparability, context, opportunity, health, opponent strength, role, and game conditions affect how much weight an observation should receive.
+
 
 Conceptual Progression
 
@@ -126,6 +153,7 @@ The initial implementation begins with granular observations and mathematical fu
 The purpose of the first stage is to create a research and measurement system capable of taking a proposition, investigating the relevant information, constructing an outcome distribution, and producing a probability that can be evaluated against the market price.
 
 The system can later incorporate additional statistical models, player and team characteristics, game-state variables, projections, injuries, lineups, opponent-specific information, and other forms of information as their relevance is established.
+
 
 Central Principle
 
