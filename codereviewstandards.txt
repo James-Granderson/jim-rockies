@@ -1,16 +1,22 @@
-1. Inspect for duplication first.
+
+1. Rationale code, don't vibe code.
+
+No code changes should be made until you have thought through the problem, questioned the reasoning, and explicitly decided what should change via your own judgment.
+
+
+2. Inspect for duplication first.
 
    If the system already knows, calculates, stores, or determines something, don't make another component independently reproduce that knowledge without a reason.
 
    Duplication must have a rationale. If there is no reason for it, remove it or move the responsibility to the appropriate component.
 
-2. Inspect memory allocation.
+3. Inspect memory allocation.
 
    Ask what information the system is holding, how much, where it is held, how long it needs to exist, and whether it needs to exist at all.
 
    Do not treat stored state as free. Every piece of retained information should have a rationale.
 
-3. Inspect temporal access.
+4. Inspect temporal access.
 
    Use the MDATO method — Memory, Data, Access, Transitions, Output.
 
@@ -30,7 +36,7 @@
 
    If initialization inputs or state mutations violate system rules, reject the change immediately at the boundary (e.g., via guard methods or immediate exceptions) before allowing that state to transition, propagate, or be accessed by downstream components.
 
-4. Optimize for efficiency with intention.
+5. Optimize for efficiency with intention.
 
    Efficiency is not synonymous with rigid minimalism. Go lean when the system benefits from being lean; go bulk when additional structure, capacity, redundancy, or computation serves a purpose.
 
@@ -38,7 +44,7 @@
 
    Prudence determines what should be optimized, how aggressively it should be optimized, and whether optimization is warranted at all.
 
-5. Inspect time complexity.
+6. Inspect time complexity.
 
    Ask how the computational cost of an operation changes as the amount of input grows.
 
@@ -46,7 +52,7 @@
 
    Do not optimize complexity for its own sake. An inefficient algorithm may be perfectly appropriate for a small or bounded input, while an apparently reasonable operation may become a serious problem at scale.
 
-6. Label.
+7. Label.
 
    Identify what each component is supposed to be and what responsibility it is supposed to hold.
 
@@ -58,19 +64,16 @@
 
    Distinguish where code is declared from when it executes.
 
-   Do not conflate visual file organization with operational execution sequence. Header interfaces, member initializer lists, method bodies, and inline definitions each operate on distinct phases of the execution lifecycle.
 
-   Always map the precise temporal sequence of execution (e.g., Allocation --> Member Initialization --> Constructor Body --> Validation) regardless of where the code physically lives on disk.
+8. Write.
 
-7. Write.
-
-   Programmers should be writers and essayists.
+   Programmers should be writers/essayists.
 
    Coding is about what the code represents, not the code itself. The programmer should therefore be able to posthumously describe the system they have built: what it is, what it contains, how it operates, how information moves through it, what each component represents, and why it behaves the way it does.
 
    Once the system has been reviewed, produce a detailed, illustrative report of everything that happened, by hand.
 
-   Your document should not just be the code itself. Describe the operation of the system vividly as a play-write would do a story.
+   Your document should not just be the code itself. Describe the operation of the system vividly as a play-write would a story.
 
    Explain:
 
