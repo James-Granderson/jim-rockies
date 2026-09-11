@@ -1,4 +1,3 @@
-
 1. Inspect for duplication first.
 
    If the system already knows, calculates, stores, or determines something, don't make another component independently reproduce that knowledge without a reason.
@@ -24,6 +23,12 @@
    * What does the system ultimately output?
 
    Consider not only what can access information, but when that access is possible and when that information ceases to be relevant.
+
+   Enforce invariants at the boundary.
+
+   An object must be valid from the exact moment of its construction. Never permit a component to exist in an indeterminate or corrupted state.
+
+   If initialization inputs or state mutations violate system rules, reject the change immediately at the boundary (e.g., via guard methods or immediate exceptions) before allowing that state to transition, propagate, or be accessed by downstream components.
 
 4. Optimize for efficiency with intention.
 
@@ -51,34 +56,40 @@
 
    If you can't label it, you probably don't know it.
 
+   Distinguish where code is declared from when it executes.
+
+   Do not conflate visual file organization with operational execution sequence. Header interfaces, member initializer lists, method bodies, and inline definitions each operate on distinct phases of the execution lifecycle.
+
+   Always map the precise temporal sequence of execution (e.g., Allocation --> Member Initialization --> Constructor Body --> Validation) regardless of where the code physically lives on disk.
+
 7. Write.
 
-Programmers should be writers and essayists.
+   Programmers should be writers and essayists.
 
-Coding is about what the code represents, not the code itself. The programmer should therefore be able to describe the system they have built: what it is, what it contains, how it operates, how information moves through it, what each component represents, and why it behaves the way it does.
+   Coding is about what the code represents, not the code itself. The programmer should therefore be able to posthumously describe the system they have built: what it is, what it contains, how it operates, how information moves through it, what each component represents, and why it behaves the way it does.
 
-Once the system has been reviewed, produce a detailed, illustrative report of everything that happened, by hand.
+   Once the system has been reviewed, produce a detailed, illustrative report of everything that happened, by hand.
 
-Your document should not just be the code itself. Describe the operation of the system vividly as a play-write would do a story.
+   Your document should not just be the code itself. Describe the operation of the system vividly as a play-write would do a story.
 
-Explain:
+   Explain:
 
-what the system is;
-what it does;
-what was changed and why;
-and what the system ultimately represents.
+   * what the system is;
+   * what it does;
+   * what was changed and why;
+   * and what the system ultimately represents.
 
-The report should allow someone, even a layman, to understand the operation of the system without having to reconstruct the programmer's thinking from the source code alone.
+   The report should allow someone, even a layman, to understand the operation of the system without having to reconstruct the programmer's thinking from the source code alone.
 
-Writing is therefore not documentation after programming. 
+   Writing is therefore not documentation after programming.
 
-Writing is a method of understanding the program itself.
+   Writing is a method of understanding the program itself.
 
-A programmer should be able to move between representations:
+   A programmer should be able to move between representations:
 
-System → Concept → Pseudocode → Code → Operation → Explanation.
+   System → Concept → Pseudocode → Code → Operation → Explanation.
 
- How to use these methods to review
+How to use these methods to review
 
 1. Inventory the files.
 2. Identify what each file is supposed to do.
@@ -89,6 +100,5 @@ System → Concept → Pseudocode → Code → Operation → Explanation.
 7. Produce a detailed illustrative report of what the system represents and what happened during the review.
 
 Label → Locate → Choose the tool → Inspect → Decide → Explain.
-
 
 
