@@ -1,6 +1,12 @@
 1. Rationale code, don't vibe code.
 
-No code changes should be made until you have thought through the problem, questioned the reasoning, and explicitly decided what should change via your own judgment.
+No code changes should be made until you have thought through the problem, questioned the reasoning, and explicitly justified/decided what should change via your own judgment.
+
+Knowledge exists at your disposal as a programmer. A developer may carry a myriad of theoretical patterns they can use, but cognitive bandwidth at any given moment is finite and eventually you must make a choice.
+
+Select the precise tool for the job. Do not deploy every framework or abstraction simply because you possess it. Match the proper tool to the objective, skin the cat cleanly, and return to execution.
+
+Know your cognitive wheel and the available methods you may use: select wisely, execute, and move on.
 
 2. Inspect for duplication first.
 
