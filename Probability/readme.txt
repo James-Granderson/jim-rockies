@@ -24,11 +24,13 @@ The system evaluates not only whether an observation occurred, but also the cond
 
 The system asks:
 
+· How good is the data?
 · Does this information describe something about the proposition?
 · Can we identify what it describes?
 · Can we attribute it?
 · Can we measure it?
 · Can we establish a relationship between it and the outcome?
+
 
 If it can, it may become evidence. If it cannot, the system does not pretend to know more than it actually does.
 
