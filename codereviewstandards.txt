@@ -2,7 +2,6 @@
 
 No code changes should be made until you have thought through the problem, questioned the reasoning, and explicitly decided what should change via your own judgment.
 
-
 2. Inspect for duplication first.
 
    If the system already knows, calculates, stores, or determines something, don't make another component independently reproduce that knowledge without a reason.
