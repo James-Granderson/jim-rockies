@@ -84,4 +84,3 @@ The resulting dataset can be used to investigate the frequency of price movement
 The project is currently focused on establishing the underlying mathematical framework and collecting market observations. Automated execution, advanced predictive models, large-scale infrastructure, and machine-learning systems are outside the initial implementation and can be considered separately after sufficient market data has been collected.
 
 Jim Rockies is therefore structured as a quantitative research system for observing, representing, and analyzing sports-market prices and the payoff structures that result from them.
-

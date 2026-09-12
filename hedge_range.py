@@ -1,3 +1,5 @@
+from decimal import Decimal, InvalidOperation
+
 import arb_math
 
 
@@ -280,7 +282,7 @@ def print_reference_scale(scale):
         ))
 
 
-def get_number(prompt):
+def get_number(prompt, *, mode=None):
 
     while True:
 
@@ -291,12 +293,21 @@ def get_number(prompt):
             if value.endswith("x"):
                 value = value[:-1]
 
-            return float(value)
+            decimal_value = arb_math._coerce_decimal(value, label="input")
 
-        except ValueError:
+            if mode == "american":
+                arb_math.validate_american_odds(decimal_value)
+            elif mode == "multiplier":
+                arb_math.validate_multiplier(decimal_value)
+            elif mode == "stake":
+                arb_math.validate_stake(decimal_value)
+
+            return decimal_value
+
+        except (ValueError, InvalidOperation) as error:
 
             print("")
-            print("Invalid input. Please enter a number.")
+            print(f"Invalid input: {error}")
             print("")
 
 
@@ -333,21 +344,25 @@ if __name__ == "__main__":
         if use_odds == "1":
 
             odds_a = get_number(
-                "Enter American odds for outcome A: "
+                "Enter American odds for outcome A: ",
+                mode="american"
             )
 
             odds_b = get_number(
-                "Enter American odds for outcome B: "
+                "Enter American odds for outcome B: ",
+                mode="american"
             )
 
         elif use_odds == "0":
 
             odds_a = get_number(
-                "Enter multiplier for outcome A: "
+                "Enter multiplier for outcome A: ",
+                mode="multiplier"
             )
 
             odds_b = get_number(
-                "Enter multiplier for outcome B: "
+                "Enter multiplier for outcome B: ",
+                mode="multiplier"
             )
 
         else:
@@ -357,7 +372,8 @@ if __name__ == "__main__":
             )
 
         total_stake = get_number(
-            "Enter total stake: "
+            "Enter total stake: ",
+            mode="stake"
         )
 
         if total_stake <= 0:
@@ -382,9 +398,9 @@ if __name__ == "__main__":
         max_profit = find_max_profit(scale)
 
         print("")
-        print("A: %+g" % odds_a)
-        print("B: %+g" % odds_b)
-        print("Stake: $%.2f" % total_stake)
+        print("A: %+g" % float(odds_a))
+        print("B: %+g" % float(odds_b))
+        print("Stake: $%.2f" % float(total_stake))
         print("")
 
         if use_odds == "1":
@@ -396,25 +412,25 @@ if __name__ == "__main__":
 
         is_arb = arb_math.is_arbitrage(decimal_a, decimal_b)
 
-        prob_a = 1.0 / decimal_a
-        prob_b = 1.0 / decimal_b
-        prob_a_pct = prob_a * 100.0
-        prob_b_pct = prob_b * 100.0
+        prob_a = Decimal("1") / decimal_a
+        prob_b = Decimal("1") / decimal_b
+        prob_a_pct = prob_a * Decimal("100")
+        prob_b_pct = prob_b * Decimal("100")
 
-        a_label = "%sx" % odds_a if use_odds == "0" else "%+g" % odds_a
-        b_label = "%sx" % odds_b if use_odds == "0" else "%+g" % odds_b
+        a_label = "%sx" % odds_a if use_odds == "0" else "%+g" % float(odds_a)
+        b_label = "%sx" % odds_b if use_odds == "0" else "%+g" % float(odds_b)
 
-        if prob_a_pct + prob_b_pct < 100:
+        if prob_a_pct + prob_b_pct < Decimal("100"):
             relation = "< 100%"
-        elif prob_a_pct + prob_b_pct > 100:
+        elif prob_a_pct + prob_b_pct > Decimal("100"):
             relation = "> 100%"
         else:
             relation = "= 100%"
 
-        print("ARB INDEX: %.4f" % index)
+        print("ARB INDEX: %.4f" % float(index))
         print("%.2f%% + %.2f%% %s -> %s" % (
-            prob_a_pct,
-            prob_b_pct,
+            float(prob_a_pct),
+            float(prob_b_pct),
             relation,
             "ARB" if is_arb else "NO ARB"
         ))
