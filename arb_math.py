@@ -1,104 +1,124 @@
 def american_to_decimal(odds):
-    if odds > 0:
-        return 1 + (odds / 100.0)
-    else:
-        return 1 + (100.0 / abs(odds))
+
+    if odds > 0:
+        return 1 + (odds / 100.0)
+
+    else:
+        return 1 + (100.0 / abs(odds))
 
 
-def parse_to_decimal_odds(odds_input: str | int | float) -> float:
-    """Normalizes input (American odds or multiplier strings) into decimal odds format."""
-    if isinstance(odds_input, (int, float)):
-        return american_to_decimal(float(odds_input))
+def multiplier_to_decimal(multiplier):
 
-    if isinstance(odds_input, str):
-        text = odds_input.strip().lower().replace(" ", "")
-        if text.endswith("x"):
-            val = float(text[:-1])
-            if val <= 0:
-                raise ValueError("Multiplier must be greater than 0.")
-            return val
-        return american_to_decimal(float(text))
+    value = str(multiplier).strip().lower().replace(" ", "")
 
-    raise TypeError(f"Unsupported odds type: {type(odds_input)}")
+    if value.endswith("x"):
+        value = value[:-1]
+
+    return float(value)
 
 
-def decimal_payout(stake: float, decimal_odds: float) -> float:
-    """Calculates total payout given a stake and decimal odds."""
-    if stake < 0:
-        raise ValueError("Stake cannot be negative.")
-    if decimal_odds <= 0:
-        raise ValueError("Decimal odds must be greater than 0.")
-    return stake * decimal_odds
+def decimal_payout(stake, decimal_odds):
+
+    return stake * decimal_odds
 
 
-def payout(stake: float, odds_input: str | int | float) -> float:
-    """Calculates payout by normalizing odds input to decimal odds first."""
-    decimal_odds = parse_to_decimal_odds(odds_input)
-    return decimal_payout(stake, decimal_odds)
+def arb_index(decimal_odds_a, decimal_odds_b):
+
+    return (1 / decimal_odds_a) + (1 / decimal_odds_b)
 
 
-def arb_index(decimal_odds_a: float, decimal_odds_b: float) -> float:
-    """Calculates the arbitrage index (implied probability sum)."""
-    if decimal_odds_a <= 0 or decimal_odds_b <= 0:
-        raise ValueError("Decimal odds must be strictly positive.")
-    return (1.0 / decimal_odds_a) + (1.0 / decimal_odds_b)
+def is_arbitrage(decimal_odds_a, decimal_odds_b):
+
+    return arb_index(decimal_odds_a, decimal_odds_b) < 1
 
 
-def is_arbitrage(decimal_odds_a: float, decimal_odds_b: float) -> bool:
-    """Returns True if an arbitrage opportunity exists."""
-    return arb_index(decimal_odds_a, decimal_odds_b) < 1.0
+def payout(stake, american_odds):
+
+    if isinstance(american_odds, str):
+        text = american_odds.strip().lower().replace(" ", "")
+
+        if text.endswith("x"):
+            return stake * multiplier_to_decimal(text)
+
+        american_odds = float(text)
+
+    if isinstance(american_odds, (int, float)):
+        decimal_odds = american_to_decimal(american_odds)
+        return stake * decimal_odds
+
+    return stake * float(american_odds)
 
 
-def hedge_result(stake_a: float, odds_a: str | float, stake_b: float, odds_b: str | float) -> tuple[float, float]:
-    """Calculates net profit/loss for both outcomes of a two-way hedge."""
-    total_stake = stake_a + stake_b
-    net_a = payout(stake_a, odds_a) - total_stake
-    net_b = payout(stake_b, odds_b) - total_stake
-    return net_a, net_b
+def hedge_result(stake_a, odds_a, stake_b, odds_b):
 
+    total_stake = stake_a + stake_b
 
-def required_odds(decimal_odds_a: float, total_stake: float, target_profit: float) -> float:
-    """Calculates required decimal odds on Outcome B to lock in target profit."""
-    guaranteed_return = total_stake + target_profit
-    denominator = total_stake - (guaranteed_return / decimal_odds_a)
-    
-    if denominator <= 0:
-        raise ValueError("Target profit is unachievable with the given stake and Outcome A odds.")
-    
-    return guaranteed_return / denominator
+    payout_a = payout(stake_a, odds_a)
+    payout_b = payout(stake_b, odds_b)
+
+    result_a = payout_a - total_stake
+    result_b = payout_b - total_stake
+
+    return result_a, result_b
+    
+  
+def required_odds(decimal_odds_a, total_stake, target_profit):
+
+    guaranteed_return = total_stake + target_profit
+
+    return guaranteed_return / (
+        total_stake - (guaranteed_return / decimal_odds_a)
+    )
 
 
 if __name__ == "__main__":
-    use_odds = input("Use American odds? (1 = yes, 0 = no): ").strip()
 
-    try:
-        if use_odds == "1":
-            odds_a_raw = input("Enter American odds for outcome A: ")
-            odds_b_raw = input("Enter American odds for outcome B: ")
-            decimal_a = parse_to_decimal_odds(odds_a_raw)
-            decimal_b = parse_to_decimal_odds(odds_b_raw)
+    use_odds = input(
+        "Use American odds? (1 = yes, 0 = no): "
+    )
 
-        elif use_odds == "0":
-            mult_a_raw = input("Enter multiplier for outcome A (e.g. 2.5 or 2.5x): ")
-            mult_b_raw = input("Enter multiplier for outcome B (e.g. 1.8 or 1.8x): ")
-            decimal_a = parse_to_decimal_odds(mult_a_raw if mult_a_raw.endswith("x") else f"{mult_a_raw}x")
-            decimal_b = parse_to_decimal_odds(mult_b_raw if mult_b_raw.endswith("x") else f"{mult_b_raw}x")
+    if use_odds == "1":
 
-        else:
-            print("Invalid selection. Please enter 1 or 0.")
-            exit(1)
+        odds_a = float(
+            input("Enter American odds for outcome A: ")
+        )
 
-        prob_a = 1 / decimal_a
-        prob_b = 1 / decimal_b
-        arb = arb_index(decimal_a, decimal_b)
+        odds_b = float(
+            input("Enter American odds for outcome B: ")
+        )
 
-        print(f"\nDecimal A: {decimal_a:.2f}")
-        print(f"Decimal B: {decimal_b:.2f}")
-        print(f"Implied Probability A: {prob_a * 100:.2f}%")
-        print(f"Implied Probability B: {prob_b * 100:.2f}%")
-        print(f"Arbitrage Percentage: {arb * 100:.2f}%")
-        print(f"Arbitrage Opportunity: {is_arbitrage(decimal_a, decimal_b)}")
+        decimal_a = american_to_decimal(odds_a)
+        decimal_b = american_to_decimal(odds_b)
 
-    except (ValueError, TypeError) as err:
-        print(f"\nExecution Error: {err}")
-        exit(1)
+    elif use_odds == "0":
+
+        multiplier_a = float(
+            input("Enter multiplier for outcome A: ")
+        )
+
+        multiplier_b = float(
+            input("Enter multiplier for outcome B: ")
+        )
+
+        decimal_a = multiplier_to_decimal(multiplier_a)
+        decimal_b = multiplier_to_decimal(multiplier_b)
+
+    else:
+
+        print("Please enter 1 or 0.")
+        exit()
+
+    probability_a = 1 / decimal_a
+    probability_b = 1 / decimal_b
+
+    arb = arb_index(decimal_a, decimal_b)
+
+    print(f"Decimal A: {decimal_a:.2f}")
+    print(f"Decimal B: {decimal_b:.2f}")
+
+    print(f"Implied Probability A: {probability_a * 100:.2f} %")
+    print(f"Implied Probability B: {probability_b * 100:.2f} %")
+
+    print(f"Arbitrage Percentage: {arb * 100:.2f} %")
+
+    print(f"Arbitrage: {arb < 1}")
