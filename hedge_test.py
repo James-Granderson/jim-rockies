@@ -14,27 +14,27 @@ rockies_payout = arb_math.payout(rockies_stake, rockies_odds)
 dodgers_result = dodgers_payout - total_stake
 rockies_result = rockies_payout - total_stake
 
-print ""
-print "========================================"
-print "           HEDGE ANALYSIS"
-print "========================================"
-print ""
+print("")
+print("========================================")
+print("           HEDGE ANALYSIS")
+print("========================================")
+print("")
 
-print "Total Staked:", total_stake
-print ""
+print("Total Staked:", total_stake)
+print("")
 
-print "DODGERS WIN"
-print "  Dodgers payout:", dodgers_payout
-print "  Net:", dodgers_result
-print ""
+print("DODGERS WIN")
+print("  Dodgers payout:", dodgers_payout)
+print("  Net:", dodgers_result)
+print("")
 
-print "ROCKIES WIN"
-print "  Rockies payout:", rockies_payout
-print "  Net:", rockies_result
-print ""
+print("ROCKIES WIN")
+print("  Rockies payout:", rockies_payout)
+print("  Net:", rockies_result)
+print("")
 
-print "WORST CASE:", min(dodgers_result, rockies_result)
-print "BEST CASE:", max(dodgers_result, rockies_result)
+print("WORST CASE:", min(dodgers_result, rockies_result))
+print("BEST CASE:", max(dodgers_result, rockies_result))
 
-print ""
-print "========================================"
+print("")
+print("========================================")

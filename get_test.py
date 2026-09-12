@@ -4,15 +4,11 @@ This program demonstrates
 a basic HTTP GET request.
 """
 
-import urllib2
+import urllib.request
 
 
-response = urllib2.urlopen("https://example.com")
-
-
-print response.info()
-print response
-
-data = response.read()
-
-print data
+with urllib.request.urlopen("https://example.com") as response:
+    print(response.info())
+    print(response)
+    data = response.read()
+    print(data)
