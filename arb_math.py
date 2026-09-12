@@ -1,10 +1,8 @@
-def american_to_decimal(odds: float) -> float:
-    """Converts American odds (+150, -110) to decimal odds."""
-    if odds == 0:
-        raise ValueError("American odds cannot be zero.")
+def american_to_decimal(odds):
     if odds > 0:
-        return 1.0 + (odds / 100.0)
-    return 1.0 + (100.0 / abs(odds))
+        return 1 + (odds / 100.0)
+    else:
+        return 1 + (100.0 / abs(odds))
 
 
 def parse_to_decimal_odds(odds_input: str | int | float) -> float:
