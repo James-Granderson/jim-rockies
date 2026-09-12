@@ -1,152 +1,86 @@
-# Jim Rockies Tools Catalog
+Jim Rockies Overview
 
-This file is a compact tool index for the project. The idea is that each file has a clear purpose and a clear "job" in the system, so the repo reads like a set of tools rather than a pile of scripts.
+Jim Rockies is a quantitative sports-market analysis project focused on the mathematical analysis of sportsbook pricing, live market movement, arbitrage conditions, and asymmetric position structures.
 
-## Core math and contracts
+The project treats sportsbook odds as numerical representations of market prices. Rather than focusing exclusively on predicting the outcome of a game, the system analyzes the relationship between the prices offered for different outcomes and examines how those prices change as the state of a game changes.
 
-### arb_math.py
-Purpose: the trusted numerical engine.
+The project has two primary areas of analysis: arbitrage detection and position analysis.
 
-What it does:
-- converts American odds to decimal odds
-- converts multipliers to decimal odds
-- validates JR input constraints
-- calculates implied probability and arbitrage index
-- computes payouts and required odds
-- keeps the math in Decimal for precision safety
+Arbitrage analysis concerns situations in which prices available across markets create a mathematically favorable combination of positions. For a two-outcome market, the system converts the available prices into implied probabilities and evaluates their combined value. When the combined implied probability falls below 100 percent, the corresponding prices satisfy the mathematical condition for a theoretical arbitrage opportunity.
 
-This is the legal contract layer for all numeric inputs.
+The project also analyzes situations that do not satisfy the strict arbitrage condition. In these situations, a position can still be evaluated according to its potential upside, downside, and probability of the denoted outcome. A primary position can be combined with a smaller position on the opposing outcome to modify the resulting payoff distribution. The purpose of this analysis is to determine how different allocations change the relationship between potential profit and potential loss.
 
-### arb_math_notes.md
-Purpose: design notes and rules.
+This produces a distinction between two types of opportunities. The first is a direct arbitrage, where the available prices mathematically produce a positive result regardless of the outcome. The second is an asymmetric position, where one outcome is favored and the opposing position is used to reduce downside exposure without eliminating the upside of the primary position.
 
-What it does:
-- records the Decimal policy
-- documents the validation rules for odds, multipliers, stakes, and target profit
-- explains the difference between valid JR input and mathematically calculable but invalid values
+The system analyzes these structures mathematically rather than treating the amount placed on each outcome as an arbitrary decision. Given a primary position, opposing-market price, and available capital, the system can calculate the resulting payoff for each outcome across different hedge sizes. This allows the relationship between hedge size, retained upside, and reduced downside to be examined as a continuous range rather than as a binary hedged or unhedged decision.
 
-### hedge_range_readme.md
-Purpose: plain-English explanation of the range logic.
+A major component of the project is the analysis of live market movement. Sportsbook prices change during games as new information becomes available. Score changes, time remaining, player performance, injuries, possession, pitching situations, game state, and other observable events can cause the market price of an outcome to change.
 
-What it does:
-- explains arb_reach.py and hedge_range.py
-- documents the difference between arb, high-EV, and max-profit objectives
-- describes how the stake range is evaluated
+Jim Rockies records these changes as market snapshots. A snapshot represents the state of a market at a particular point in time and can contain the game, sportsbook, timestamp, prices for each outcome, score, game state, implied probabilities, and other relevant information.
 
-## Market / reach analysis tools
+Pregame and live snapshots can then be compared mathematically. A hypothetical pregame position can be established at the initial market price, after which subsequent live prices can be evaluated to determine whether the market moved toward or away from an arbitrage threshold or whether the new prices created a more favorable asymmetric hedge.
 
-### arb_reach.py
-Purpose: must-reach target calculator.
+The project therefore does not require a position to be established in order to study the market. Historical and live observations can be collected without financial execution and analyzed afterward. This allows the frequency and magnitude of potential opportunities to be measured independently of actual wagering.
 
-What it does:
-- takes a single odds value
-- computes the required decimal odds needed to hit a profit target
-- prints the target range for $1 through $10 profit
-- uses a fixed $100 reference stake
+The system can also monitor markets without establishing a pregame position. In this configuration, the system continuously evaluates the prices of opposing outcomes and calculates whether their combined implied probability satisfies the mathematical condition for arbitrage. This allows spontaneous arbitrage opportunities to be identified independently of any initial position.
 
-Think of this as: "what odds do I need to reach my target?"
+The two forms of analysis can therefore operate simultaneously. One component evaluates whether the current market contains a direct arbitrage condition. Another evaluates how a particular position would behave under the current prices. The first is concerned with the relationship between market prices. The second is concerned with the resulting payoff distribution of a position.
 
-### hedge_range.py
-Purpose: stake split and hedge analysis.
+The project is designed to support multiple data sources. Market information can initially be entered manually or stored in lightweight structured files. The same analytical functions can later process information obtained through APIs, public data sources, or other structured market feeds. The mathematical analysis is separated from the method used to obtain the underlying data.
 
-What it does:
-- takes equity A / B odds and total stake
-- evaluates every stake split in the range
-- computes profit for each side under each outcome
-- identifies:
-  - best arbitrage position
-  - high-EV position
-  - max-profit position
-- prints hedge range and reference scale
+The initial implementation uses Python. Market states can be represented using structured data objects containing consistent fields such as game identifier, timestamp, sportsbook, outcome prices, score, and game state. These structures can be searched and indexed using stable identifiers and can be serialized to files for later analysis.
 
-Think of this as: "what should I stake on each side?"
+A database is not required for the initial implementation. Lightweight file storage and in-memory data structures are sufficient for early experimentation. If the project produces a sufficiently large historical dataset, persistent storage can be introduced without changing the underlying mathematical analysis.
 
-## Event-level and market tools
+The first stage of the project is therefore a research and measurement system. Its purpose is to establish a collection of mathematical functions and data structures capable of representing sportsbook markets, calculating implied probabilities, identifying arbitrage conditions, modeling asymmetric positions, and comparing market states over time.
 
-### event_arb.py
-Purpose: event-level arbitrage analysis.
+The initial system will focus on several core calculations:
 
-What it does:
-- loads a market/event payload
-- identifies away and home teams
-- finds the best odds for each side
-- evaluates whether the event has an arbitrage condition
+* Conversion between American and decimal odds
+* Implied probability calculation
+* Combined implied probability
+* Market overround
+* Arbitrage threshold detection
+* Position payoff calculation
+* Hedge payoff calculation
+* Profit and loss under each possible outcome
+* Comparison between pregame and live prices
+* Measurement of live price movement
+* Identification of potential arbitrage transitions
+* General Probability (Including Player Props)
 
-Think of this as: "analyze a specific market event."
+Later versions can incorporate additional information into the analysis, including team and player statistics, injuries, lineups, historical performance, game-state variables, and internally calculated win probabilities. These components would provide an additional probability model that could be compared against the probability represented by the market price.
 
-### scraper.py
-Purpose: data acquisition.
+The project can therefore eventually analyze two separate quantities:
 
-What it does:
-- fetches sportsbook / market data
-- collects odds from external sources
-- prepares data for downstream analysis
+The price being offered by the market, and
 
-This is the ingestion layer.
+the estimated probability of the underlying outcome.
 
-### display.py
-Purpose: formatting and presentation helpers.
+The relationship between those quantities provides the basis for expected-value analysis. The market price determines the mathematical payoff available from a position, while the probability model determines the estimated likelihood of each outcome. Arbitrage analysis remains independent of the probability model because an arbitrage condition depends only on the available prices and their mathematical relationship.
 
-What it does:
-- color formatting
-- readable output for financial values
-- display wrappers for report output
+The live component introduces a temporal dimension to the project. Instead of analyzing a market as a single pregame price, the system can treat the market as a sequence of states:
 
-### config.py
-Purpose: project configuration.
 
-What it does:
-- stores runtime settings
-- holds project-specific defaults and parameters
+Pregame Market
+      ↓
+Game Begins
+      ↓
+Live Market State
+      ↓
+New Game Information
+      ↓
+Market Repricing
+      ↓
+New Live Market State
+      ↓
+Payoff / Arbitrage Analysis
 
-## Utility and support tools
 
-### get_test.py
-Purpose: quick data / sampling utility.
+Each state can be compared with the previous state and with the original pregame market. This creates a historical record of how prices responded to changes in the underlying event.
 
-What it does:
-- used for testing / fetch / inspect flows
-- useful for debugging data inputs and outputs
+The resulting dataset can be used to investigate the frequency of price movements, the frequency with which markets approach or cross theoretical arbitrage thresholds, the behavior of asymmetric positions, and the relationship between market prices and independently estimated probabilities.
 
-### jim_rockies.py
-Purpose: top-level project runner / workflow entry point.
+The project is currently focused on establishing the underlying mathematical framework and collecting market observations. Automated execution, advanced predictive models, large-scale infrastructure, and machine-learning systems are outside the initial implementation and can be considered separately after sufficient market data has been collected.
 
-What it does:
-- can coordinate the project’s main analysis flow
-- may serve as the broader orchestration layer
-
-### prizepicks.html
-Purpose: front-end or display artifact.
-
-What it does:
-- local HTML/demo output for odds or market presentation
-
-### test_decimal_arb_math.py
-Purpose: regression protection for numeric correctness.
-
-What it does:
-- verifies Decimal conversion behavior
-- verifies invalid input rejection
-- validates the JR numerical contract
-
-## Interpretation model
-
-The repo is best understood as a set of small tools with distinct jobs:
-
-- data gathering
-- odds conversion and validation
-- arbitrage detection
-- hedge optimization
-- output formatting
-- market event analysis
-
-The tool boundaries are intentionally separate so that each component can be tested and reasoned about independently.
-
-## Rule of thumb
-
-If a file is doing math, it belongs in the arb_math / odds-validation layer.
-If a file is deciding a stake split or selecting a position, it belongs in the hedge-range layer.
-If a file is pulling market data, it belongs in the scraper / data layer.
-If a file is mostly output or display, it belongs in display / formatting.
-
-This is the mental model for the project.
+Jim Rockies is therefore structured as a quantitative research system for observing, representing, and analyzing sports-market prices and the payoff structures that result from them.
