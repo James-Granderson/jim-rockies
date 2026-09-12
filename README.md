@@ -63,18 +63,26 @@ The live component introduces a temporal dimension to the project. Instead of an
 
 
 Pregame Market
+
       ↓
 Game Begins
+
       ↓
 Live Market State
+
       ↓
 New Game Information
+
       ↓
 Market Repricing
+
       ↓
 New Live Market State
+
       ↓
+      
 Payoff / Arbitrage Analysis
+
 
 
 Each state can be compared with the previous state and with the original pregame market. This creates a historical record of how prices responded to changes in the underlying event.
