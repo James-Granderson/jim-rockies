@@ -115,11 +115,7 @@ The question therefore becomes one of accumulation. What information can be reta
 
 Over time, this accumulated knowledge becomes more important than any individual result.
 
-Instead of reductively asking, “Will this happen?”
-
-We ask:
-
-"What can I genuinely produce over time?"
+The objective is to generate real production over time after observation, rather than merely asking will something happen or not tonight.
 
 
 Decomposition and Conditional Probability
