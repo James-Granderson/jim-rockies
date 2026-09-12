@@ -60,6 +60,15 @@ def hedge_result(stake_a, odds_a, stake_b, odds_b):
     result_b = payout_b - total_stake
 
     return result_a, result_b
+    
+  
+def required_odds(decimal_odds_a, total_stake, target_profit):
+
+    guaranteed_return = total_stake + target_profit
+
+    return guaranteed_return / (
+        total_stake - (guaranteed_return / decimal_odds_a)
+    )
 
 
 if __name__ == "__main__":
