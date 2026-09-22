@@ -1,158 +1,156 @@
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, getcontext
+
+getcontext().prec = 28
 
 
-def _coerce_decimal(value, *, allow_multiplier_suffix=False, label="value"):
-
-    if value is None or isinstance(value, bool):
-        raise ValueError(f"{label} must be a numeric value.")
-
+def _to_decimal(value):
     if isinstance(value, Decimal):
-        dec = value
-    elif isinstance(value, int):
-        dec = Decimal(value)
-    elif isinstance(value, float):
-        dec = Decimal(str(value))
-    else:
-        text = str(value).strip().lower().replace(" ", "")
+        return value
 
-        if allow_multiplier_suffix and text.endswith("x"):
-            text = text[:-1]
-
-        try:
-            dec = Decimal(text)
-        except InvalidOperation as exc:
-            raise ValueError(f"{label} must be numeric.") from exc
-
-    if not dec.is_finite():
-        raise ValueError(f"{label} must be finite.")
-
-    return dec
+    try:
+        return Decimal(str(value))
+    except (InvalidOperation, ValueError, TypeError) as exc:
+        raise ValueError("Value must be numeric.") from exc
 
 
-def validate_decimal_odds(value, *, label="decimal odds"):
+def validate_american_odds(odds):
+    value = _to_decimal(odds)
 
-    dec = _coerce_decimal(value, label=label)
+    if value == 0 or abs(value) < 100:
+        raise ValueError("American odds must be +/-100 or greater.")
 
-    if dec <= Decimal("1"):
-        raise ValueError(f"{label} must be greater than 1.")
-
-    return dec
-
-
-def validate_multiplier(value):
-
-    dec = _coerce_decimal(value, allow_multiplier_suffix=True, label="multiplier")
-
-    if dec <= Decimal("1"):
-        raise ValueError("Multiplier must be greater than 1.")
-
-    return dec
-
-
-def validate_american_odds(value):
-
-    dec = _coerce_decimal(value, label="American odds")
-
-    if dec == Decimal("0"):
-        raise ValueError("American odds cannot be zero.")
-
-    if dec > 0:
-        if dec < Decimal("100"):
-            raise ValueError("Positive American odds must be at least +100.")
-    elif dec < 0:
-        if dec > Decimal("-100"):
-            raise ValueError("Negative American odds must be at most -100.")
-    else:
-        raise ValueError("American odds cannot be zero.")
-
-    return dec
-
-
-def validate_target_profit(value):
-
-    dec = _coerce_decimal(value, label="target profit")
-
-    if dec <= 0:
-        raise ValueError("Target profit must be greater than zero.")
-
-    return dec
-
-
-def validate_stake(value, *, allow_zero=False):
-
-    dec = _coerce_decimal(value, label="stake")
-
-    if allow_zero:
-        if dec < 0:
-            raise ValueError("Stake cannot be negative.")
-        return dec
-
-    if dec <= 0:
-        raise ValueError("Stake must be greater than zero.")
-
-    return dec
+    return value
 
 
 def american_to_decimal(odds):
+    value = validate_american_odds(odds)
 
-    odds_decimal = validate_american_odds(odds)
+    if value > 0:
+        return Decimal("1") + (value / Decimal("100"))
 
-    if odds_decimal > 0:
-        return Decimal("1") + (odds_decimal / Decimal("100"))
+    return Decimal("1") + (Decimal("100") / abs(value))
 
-    return Decimal("1") + (Decimal("100") / abs(odds_decimal))
+
+def validate_multiplier(multiplier):
+    value = _to_decimal(multiplier)
+
+    if value <= 1:
+        raise ValueError("Multiplier must be greater than 1.")
+
+    return value
 
 
 def multiplier_to_decimal(multiplier):
-
     return validate_multiplier(multiplier)
 
 
-def decimal_payout(stake, decimal_odds):
+def validate_fee_decimal(fee_decimal):
+    value = _to_decimal(fee_decimal)
 
-    stake_decimal = validate_stake(stake, allow_zero=True)
-    odds_decimal = validate_decimal_odds(decimal_odds)
-    return stake_decimal * odds_decimal
+    if value < 0 or value >= 1:
+        raise ValueError("Fee decimal must be between 0 and 1.")
+
+    return value
+
+
+def apply_fee_decimal(decimal_odds, fee_decimal):
+    base = _to_decimal(decimal_odds)
+    fee = validate_fee_decimal(fee_decimal)
+    return base * (Decimal("1") - fee)
+
+
+def validate_stake(stake):
+    value = _to_decimal(stake)
+
+    if value <= 0:
+        raise ValueError("Stake must be greater than zero.")
+
+    return value
 
 
 def arb_index(decimal_odds_a, decimal_odds_b):
+    a = _to_decimal(decimal_odds_a)
+    b = _to_decimal(decimal_odds_b)
 
-    odds_a = validate_decimal_odds(decimal_odds_a, label="decimal odds A")
-    odds_b = validate_decimal_odds(decimal_odds_b, label="decimal odds B")
+    if a <= 0 or b <= 0:
+        raise ValueError("Odds must be greater than zero.")
 
-    return (Decimal("1") / odds_a) + (Decimal("1") / odds_b)
+    return (Decimal("1") / a) + (Decimal("1") / b)
 
 
 def is_arbitrage(decimal_odds_a, decimal_odds_b):
+    return arb_index(decimal_odds_a, decimal_odds_b) < 1
 
-    return arb_index(decimal_odds_a, decimal_odds_b) < Decimal("1")
+
+def decimal_payout(stake, decimal_odds):
+    s = _to_decimal(stake)
+    d = _to_decimal(decimal_odds)
+
+    if s < 0:
+        raise ValueError("Stake cannot be negative.")
+
+    return s * d
+
+
+def direct_payout(stake, american_odds):
+    return decimal_payout(stake, american_to_decimal(american_odds))
 
 
 def payout(stake, american_odds):
+    return direct_payout(stake, american_odds)
 
-    stake_decimal = validate_stake(stake, allow_zero=True)
 
-    if isinstance(american_odds, str):
-        text = american_odds.strip().lower().replace(" ", "")
+def implied_probability(decimal_odds):
+    d = _to_decimal(decimal_odds)
 
-        if text.endswith("x"):
-            return stake_decimal * validate_multiplier(text)
+    if d <= 0:
+        raise ValueError("Decimal odds must be greater than zero.")
 
-        american_odds = validate_american_odds(text)
+    return Decimal("1") / d
 
-    if isinstance(american_odds, (int, float, Decimal)):
-        decimal_odds = american_to_decimal(american_odds)
-        return stake_decimal * decimal_odds
 
-    return stake_decimal * validate_decimal_odds(american_odds)
+def probability_in_cents(decimal_odds):
+    return implied_probability(decimal_odds) * Decimal("100")
+
+
+def direct_probability(stake, payout):
+    s = _to_decimal(stake)
+    p = _to_decimal(payout)
+
+    if p <= 0:
+        raise ValueError("Payout must be greater than zero.")
+
+    return (s / p) * Decimal("100")
+
+
+def direct_arb(stake_a, payout_a, stake_b, payout_b):
+    total_stake = _to_decimal(stake_a) + _to_decimal(stake_b)
+    payout_a = _to_decimal(payout_a)
+    payout_b = _to_decimal(payout_b)
+
+    arb = (payout_a > total_stake) and (payout_b > total_stake)
+    profit_a = payout_a - total_stake
+    profit_b = payout_b - total_stake
+
+    return {
+        "stake_a": _to_decimal(stake_a),
+        "stake_b": _to_decimal(stake_b),
+        "total_stake": total_stake,
+        "payout_a": payout_a,
+        "payout_b": payout_b,
+        "profit_if_a_wins": profit_a,
+        "profit_if_b_wins": profit_b,
+        "arb": arb,
+        "profit_a": profit_a,
+        "profit_b": profit_b,
+    }
 
 
 def hedge_result(stake_a, odds_a, stake_b, odds_b):
+    total_stake = _to_decimal(stake_a) + _to_decimal(stake_b)
 
-    total_stake = validate_stake(stake_a, allow_zero=True) + validate_stake(stake_b, allow_zero=True)
-
-    payout_a = payout(stake_a, odds_a)
-    payout_b = payout(stake_b, odds_b)
+    payout_a = direct_payout(stake_a, odds_a)
+    payout_b = direct_payout(stake_b, odds_b)
 
     result_a = payout_a - total_stake
     result_b = payout_b - total_stake
@@ -160,63 +158,72 @@ def hedge_result(stake_a, odds_a, stake_b, odds_b):
     return result_a, result_b
 
 
-def required_odds(decimal_odds_a, total_stake, target_profit):
+def required_odds(decimal_odds, stake, target_profit):
+    d = _to_decimal(decimal_odds)
+    s = _to_decimal(stake)
+    p = _to_decimal(target_profit)
 
-    odds_a = validate_decimal_odds(decimal_odds_a, label="decimal odds A")
-    total_stake = validate_stake(total_stake)
-    profit_target = validate_target_profit(target_profit)
-    guaranteed_return = total_stake + profit_target
-    denominator = total_stake - (guaranteed_return / odds_a)
+    if d <= 1:
+        raise ValueError("Decimal odds must be greater than 1.")
 
-    if denominator == 0:
-        raise ValueError("Required odds denominator cannot be zero.")
+    if s <= 0:
+        raise ValueError("Stake must be greater than zero.")
 
-    return guaranteed_return / denominator
+    if p <= 0:
+        raise ValueError("Target profit must be greater than zero.")
+
+    return (s + p) / s
 
 
 if __name__ == "__main__":
 
-    use_odds = input(
-        "Use American odds? (1 = yes, 0 = no): "
-    )
+    print("")
+    print("ARB MATH")
+    print("1) American odds -> decimal odds")
+    print("   Example: 110 or -110")
+    print("2) Multiplier -> decimal odds")
+    print("   Example: 2.50")
+    print("3) Direct probability in cents")
+    print("   Example: stake=20, payout=38.65")
+    print("4) Direct stake + payout arb check")
+    print("   Example: stake A=20, payout A=38.65 | stake B=37.62, payout B=19.65")
+    print("")
 
-    if use_odds == "1":
+    choice = input("Choose an option (1-4): ").strip()
 
-        odds_a = Decimal(
-            input("Enter American odds for outcome A: ")
-        )
+    if choice == "1":
+        odds = Decimal(input("American odds (example: 110 or -110): "))
+        decimal_odds = american_to_decimal(odds)
+        implied = probability_in_cents(decimal_odds)
+        print(f"Decimal odds: {decimal_odds}")
+        print(f"Implied probability: {implied}%")
 
-        odds_b = Decimal(
-            input("Enter American odds for outcome B: ")
-        )
+    elif choice == "2":
+        multiplier = Decimal(input("Multiplier (example: 2.50): "))
+        decimal_odds = multiplier_to_decimal(multiplier)
+        implied = probability_in_cents(decimal_odds)
+        print(f"Decimal odds: {decimal_odds}")
+        print(f"Implied probability: {implied}%")
 
-        decimal_a = american_to_decimal(odds_a)
-        decimal_b = american_to_decimal(odds_b)
+    elif choice == "3":
+        stake = Decimal(input("Stake (example: 20): "))
+        payout = Decimal(input("Payout (example: 38.65): "))
+        implied = direct_probability(stake, payout)
+        print(f"Direct probability: {implied}%")
+        print(f"Net on this side: {payout - stake}")
 
-    elif use_odds == "0":
+    elif choice == "4":
+        stake_a = Decimal(input("Stake A (example: 20): "))
+        payout_a = Decimal(input("Payout A (example: 38.65): "))
+        stake_b = Decimal(input("Stake B (example: 37.62): "))
+        payout_b = Decimal(input("Payout B (example: 19.65): "))
 
-        multiplier_a = input("Enter multiplier for outcome A: ")
-        multiplier_b = input("Enter multiplier for outcome B: ")
+        result = direct_arb(stake_a, payout_a, stake_b, payout_b)
 
-        decimal_a = multiplier_to_decimal(multiplier_a)
-        decimal_b = multiplier_to_decimal(multiplier_b)
+        print(f"Total stake: {result['total_stake']}")
+        print(f"A payout: {result['payout_a']} | A profit: {result['profit_a']}")
+        print(f"B payout: {result['payout_b']} | B profit: {result['profit_b']}")
+        print(f"ARB: {result['arb']}")
 
     else:
-
-        print("Please enter 1 or 0.")
-        exit()
-
-    probability_a = Decimal("1") / decimal_a
-    probability_b = Decimal("1") / decimal_b
-
-    arb = arb_index(decimal_a, decimal_b)
-
-    print(f"Decimal A: {decimal_a:.2f}")
-    print(f"Decimal B: {decimal_b:.2f}")
-
-    print(f"Implied Probability A: {probability_a * Decimal('100'):.2f} %")
-    print(f"Implied Probability B: {probability_b * Decimal('100'):.2f} %")
-
-    print(f"Arbitrage Percentage: {arb * Decimal('100'):.2f} %")
-
-    print(f"Arbitrage: {arb < Decimal('1')}")
+        print("Invalid choice.")
