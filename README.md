@@ -59,23 +59,9 @@ the estimated probability of the underlying outcome.
 
 The relationship between those quantities provides the basis for expected-value analysis. The market price determines the mathematical payoff available from a position, while the probability model determines the estimated likelihood of each outcome. Arbitrage analysis remains independent of the probability model because an arbitrage condition depends only on the available prices and their mathematical relationship.
 
-The live component introduces a temporal dimension to the project. Instead of analyzing a market as a single pregame price, the system can treat the market as a sequence of states:
+The live component introduces a temporal dimension to the project. Instead of analyzing a market as a single pregame price, the system can treat the market as a sequence of states: 
 
-
-Pregame Market
-      ↓
-Game Begins
-      ↓
-Live Market State
-      ↓
-New Game Information
-      ↓
-Market Repricing
-      ↓
-New Live Market State
-      ↓
-Payoff / Arbitrage Analysis
-
+The sequence begins with the pregame market. The game then begins. A live market state follows. New game information arrives. The market reprices in response. A new live market state results. Payoff and arbitrage analysis can be performed on all of those states.
 
 Each state can be compared with the previous state and with the original pregame market. This creates a historical record of how prices responded to changes in the underlying event.
 
