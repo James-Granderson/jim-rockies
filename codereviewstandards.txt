@@ -88,9 +88,10 @@ Know your cognitive wheel and the available methods you may use: select wisely, 
 
    The report should allow someone, even a layman, to understand the operation of the system without having to reconstruct the programmer's thinking from the source code alone.
 
-   Writing is therefore not documentation after programming.
-
+  
    Writing is a method of understanding the program itself.
+
+   The goal here isn't to lazily write documentation, it is to tell a story.
 
    A programmer should be able to move between representations:
 
