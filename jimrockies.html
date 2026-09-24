@@ -1,0 +1,62 @@
+```html 
+//python3 -m http.server 8000//
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jim Rockies</title>
+</head>
+
+<body>
+
+    <h1>Jim Rockies</h1>
+
+    <div id="home">
+        <button onclick="openTool('arb-reach')">Arb Reach</button>
+        <button onclick="openTool('arb-math')">Arb Math</button>
+        <button onclick="openTool('hedge-test')">Hedge Test</button>
+    </div>
+
+    <div id="tool" style="display: none;">
+        <h2 id="tool-title"></h2>
+
+        <button onclick="runTool()">Calculate</button>
+        <button onclick="clearTool()">Clear</button>
+        <button onclick="goHome()">Back</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let currentTool = "";
+
+        function openTool(tool) {
+            currentTool = tool;
+
+            document.getElementById("home").style.display = "none";
+            document.getElementById("tool").style.display = "block";
+            document.getElementById("tool-title").textContent = tool;
+        }
+
+        function runTool() {
+            fetch("/" + currentTool)
+                .then(response => response.text())
+                .then(result => {
+                    document.getElementById("result").textContent = result;
+                });
+        }
+
+        function clearTool() {
+            document.getElementById("result").textContent = "";
+        }
+
+        function goHome() {
+            document.getElementById("tool").style.display = "none";
+            document.getElementById("home").style.display = "block";
+            clearTool();
+        }
+    </script>
+
+</body>
+</html>
+```

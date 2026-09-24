@@ -46,6 +46,9 @@ def analyze_range(value_a, value_b, total_stake, mode="multiplier", fee_a=Decima
     if fee_b:
         decimal_b = arb_math.apply_fee_decimal(decimal_b, fee_b)
 
+    decimal_a = arb_math.apply_vig(decimal_a)
+    decimal_b = arb_math.apply_vig(decimal_b)
+
     index = arb_math.arb_index(decimal_a, decimal_b)
     odds_status = "ARB" if index < 1 else "NO ARB"
 
@@ -247,6 +250,22 @@ def print_hedge_range(scale, position):
         ))
 
 
+def print_formula_trace(total_stake, odds_a, odds_b):
+    print("")
+    print("FORMULA TRACE")
+    print("----------------------------------------")
+    print("For each split of the total stake:")
+    print("  Stake A + Stake B = Total Stake")
+    print("  Payout A = Stake A × Odds A")
+    print("  Payout B = Stake B × Odds B")
+    print("  Profit A = Payout A - Total Stake")
+    print("  Profit B = Payout B - Total Stake")
+    print("  Worst = min(Profit A, Profit B)")
+    print("  Best = max(Profit A, Profit B)")
+    print(f"  Using: Total Stake = ${total_stake}, Odds A = {odds_a:.2f}, Odds B = {odds_b:.2f}")
+    print("----------------------------------------")
+
+
 def print_reference_scale(scale):
 
     print("")
@@ -403,6 +422,7 @@ if __name__ == "__main__":
             print("FEE B: %.4f" % fee_b)
         print("")
 
+        print_formula_trace(total_stake, odds_a, odds_b)
         print("ARB INDEX: %.4f" % index)
         print("STATUS:", odds_status)
 
