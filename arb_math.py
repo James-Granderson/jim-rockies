@@ -1,8 +1,14 @@
-from decimal import Decimal, InvalidOperation, getcontext
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP, getcontext
 
 getcontext().prec = 28
 
 DEFAULT_VIG = Decimal("0.05")
+PROBABILITY_CAP = Decimal("0.95")
+DEFAULT_STAKE = Decimal("30.00")
+DEFAULT_START_PROB_B = Decimal("0.80")
+DEFAULT_END_PROB_B = Decimal("0.10")
+DEFAULT_STEP = Decimal("0.01")
+ACTIONABLE_WINDOW = Decimal("0.10")
 
 
 def _to_decimal(value):
@@ -91,6 +97,87 @@ def validate_stake(stake):
         raise ValueError("Stake must be greater than zero.")
 
     return value
+
+
+def target_prob_b(prob_a):
+    prob_a_value = _to_decimal(prob_a)
+    if prob_a_value < Decimal("0") or prob_a_value > PROBABILITY_CAP:
+        raise ValueError("Prob A must land between 0 and 95%.")
+    return (PROBABILITY_CAP - prob_a_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+def is_loss_bound(prob_a, prob_b):
+    return _to_decimal(prob_b) > target_prob_b(prob_a)
+
+
+def is_valid_prob_b_window(prob_a, prob_b):
+    prob_b_value = _to_decimal(prob_b)
+    wall = target_prob_b(prob_a)
+    lower_bound = (wall - ACTIONABLE_WINDOW).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return prob_b_value <= wall and prob_b_value >= lower_bound
+
+
+def make_arbitrage(prob_a, stake=DEFAULT_STAKE, odds_a=Decimal("3.00"), start_prob_b=DEFAULT_START_PROB_B, end_prob_b=DEFAULT_END_PROB_B, step=DEFAULT_STEP):
+    prob_a_value = _to_decimal(prob_a)
+    stake_value = validate_stake(stake)
+    odds_value = _to_decimal(odds_a)
+    start_value = _to_decimal(start_prob_b)
+    end_value = _to_decimal(end_prob_b)
+    step_value = _to_decimal(step)
+
+    if step_value <= 0:
+        raise ValueError("Step must be greater than zero.")
+
+    gross_revenue_target = (stake_value * odds_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    rows = []
+    current = start_value
+
+    while current >= end_value:
+        if is_valid_prob_b_window(prob_a_value, current):
+            combined_probability = (prob_a_value + current).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            if combined_probability <= PROBABILITY_CAP:
+                total_stakes = (stake_value + stake_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+                profit_target = (gross_revenue_target - total_stakes).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+                rows.append({
+                    "stake": stake_value,
+                    "prob_a": prob_a_value,
+                    "prob_b": current,
+                    "target_wall": target_prob_b(prob_a_value),
+                    "combined_probability": combined_probability,
+                    "gross_revenue_target": gross_revenue_target,
+                    "fixed_profit_target": profit_target,
+                    "cash_flow": profit_target,
+                })
+        current = (current - step_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+    return rows
+
+
+def scan_probability_field(prob_a, stake=DEFAULT_STAKE, odds_a=Decimal("3.00"), start_prob_b=DEFAULT_START_PROB_B, end_prob_b=DEFAULT_END_PROB_B, step=DEFAULT_STEP):
+    return make_arbitrage(prob_a, stake=stake, odds_a=odds_a, start_prob_b=start_prob_b, end_prob_b=end_prob_b, step=step)
+
+
+def normalize_odds(raw_odds):
+    value = _to_decimal(raw_odds)
+
+    if value == 0:
+        raise ValueError("Odds must be non-zero.")
+
+    if abs(value) >= Decimal("100"):
+        decimal_odds = american_to_decimal(value)
+    else:
+        decimal_odds = multiplier_to_decimal(value)
+
+    implied_probability_pct = (Decimal("1") / decimal_odds * Decimal("100")).quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP,
+    )
+
+    return {
+        "raw_odds": value,
+        "decimal_odds": decimal_odds,
+        "implied_probability_pct": implied_probability_pct,
+    }
 
 
 def arb_index(decimal_odds_a, decimal_odds_b, vig_factor=None, stake_a=None, stake_b=None):

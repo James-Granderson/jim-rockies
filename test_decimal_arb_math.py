@@ -112,3 +112,53 @@ def test_normalize_side_and_market_data_are_defensive():
     )
     assert market["odds_b"] == Decimal("1.80")
     assert market["vig_factor"] == Decimal("0.05")
+
+
+def test_mvp_calc_layer_uses_decimal_math():
+    normalized = arb_math.normalize_odds("3.00")
+    assert normalized["decimal_odds"] == Decimal("3.00")
+    assert normalized["implied_probability_pct"] == Decimal("33.33")
+
+    gross_revenue_target = (Decimal("30.00") * normalized["decimal_odds"]).quantize(Decimal("0.01"))
+    assert gross_revenue_target == Decimal("90.00")
+    assert isinstance(gross_revenue_target, Decimal)
+
+
+def test_make_arbitrage_screen_uses_95_percent_landmark_and_10pct_window():
+    rows = arb_math.make_arbitrage(
+        prob_a=Decimal("0.40"),
+        stake=Decimal("30.00"),
+        odds_a=Decimal("3.00"),
+        start_prob_b=Decimal("0.80"),
+        end_prob_b=Decimal("0.10"),
+        step=Decimal("0.01"),
+    )
+    assert rows
+    assert rows[0]["target_wall"] == Decimal("0.55")
+    assert all(row["prob_b"] <= Decimal("0.55") for row in rows)
+    assert all(row["prob_b"] >= Decimal("0.45") for row in rows)
+    assert all(row["fixed_profit_target"] == Decimal("30.00") for row in rows)
+
+
+def test_reach_window_enforces_hard_cap_and_10pct_band():
+    prob_a = Decimal("0.40")
+    wall = arb_math.target_prob_b(prob_a)
+    assert wall == Decimal("0.55")
+    assert arb_math.is_loss_bound(prob_a, Decimal("0.60")) is True
+    assert arb_math.is_valid_prob_b_window(prob_a, Decimal("0.55")) is True
+    assert arb_math.is_valid_prob_b_window(prob_a, Decimal("0.45")) is True
+    assert arb_math.is_valid_prob_b_window(prob_a, Decimal("0.60")) is False
+
+
+def test_make_arbitrage_scan_filters_to_actionable_zone():
+    rows = arb_math.scan_probability_field(
+        prob_a=Decimal("0.40"),
+        stake=Decimal("30.00"),
+        odds_a=Decimal("3.00"),
+        start_prob_b=Decimal("0.80"),
+        end_prob_b=Decimal("0.10"),
+        step=Decimal("0.01"),
+    )
+    assert rows
+    assert all(row["prob_b"] <= Decimal("0.55") for row in rows)
+    assert all(row["prob_b"] >= Decimal("0.45") for row in rows)
