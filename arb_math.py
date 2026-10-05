@@ -1,14 +1,12 @@
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP, getcontext
+"""
+arb_math.py - Core mathematical base, arb evaluation, and state storage.
+"""
+
+from collections import deque
+from decimal import Decimal, InvalidOperation, getcontext
+from typing import Deque, List, Optional
 
 getcontext().prec = 28
-
-DEFAULT_VIG = Decimal("0.05")
-PROBABILITY_CAP = Decimal("0.95")
-DEFAULT_STAKE = Decimal("30.00")
-DEFAULT_START_PROB_B = Decimal("0.80")
-DEFAULT_END_PROB_B = Decimal("0.10")
-DEFAULT_STEP = Decimal("0.01")
-ACTIONABLE_WINDOW = Decimal("0.10")
 
 
 def _to_decimal(value):
@@ -52,44 +50,6 @@ def multiplier_to_decimal(multiplier):
     return validate_multiplier(multiplier)
 
 
-def validate_fee_decimal(fee_decimal):
-    value = _to_decimal(fee_decimal)
-
-    if value < 0 or value >= 1:
-        raise ValueError("Fee decimal must be between 0 and 1.")
-
-    return value
-
-
-def validate_vig(vig):
-    value = _to_decimal(vig)
-
-    if value < 0 or value >= 1:
-        raise ValueError("Vig must be between 0 and 1.")
-
-    return value
-
-
-def apply_vig(decimal_odds, vig_factor=DEFAULT_VIG):
-    d = _to_decimal(decimal_odds)
-    v = validate_vig(vig_factor)
-
-    if d <= 0:
-        raise ValueError("Decimal odds must be greater than zero.")
-
-    return d * (Decimal("1") - v)
-
-
-def vig(decimal_odds, vig_factor=DEFAULT_VIG):
-    return apply_vig(decimal_odds, vig_factor)
-
-
-def apply_fee_decimal(decimal_odds, fee_decimal):
-    base = _to_decimal(decimal_odds)
-    fee = validate_fee_decimal(fee_decimal)
-    return base * (Decimal("1") - fee)
-
-
 def validate_stake(stake):
     value = _to_decimal(stake)
 
@@ -97,133 +57,6 @@ def validate_stake(stake):
         raise ValueError("Stake must be greater than zero.")
 
     return value
-
-
-def target_prob_b(prob_a):
-    prob_a_value = _to_decimal(prob_a)
-    if prob_a_value < Decimal("0") or prob_a_value > PROBABILITY_CAP:
-        raise ValueError("Prob A must land between 0 and 95%.")
-    return (PROBABILITY_CAP - prob_a_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-
-
-def is_loss_bound(prob_a, prob_b):
-    return _to_decimal(prob_b) > target_prob_b(prob_a)
-
-
-def is_valid_prob_b_window(prob_a, prob_b):
-    prob_b_value = _to_decimal(prob_b)
-    wall = target_prob_b(prob_a)
-    lower_bound = (wall - ACTIONABLE_WINDOW).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-    return prob_b_value <= wall and prob_b_value >= lower_bound
-
-
-def make_arbitrage(prob_a, stake=DEFAULT_STAKE, odds_a=Decimal("3.00"), start_prob_b=DEFAULT_START_PROB_B, end_prob_b=DEFAULT_END_PROB_B, step=DEFAULT_STEP):
-    prob_a_value = _to_decimal(prob_a)
-    stake_value = validate_stake(stake)
-    odds_value = _to_decimal(odds_a)
-    start_value = _to_decimal(start_prob_b)
-    end_value = _to_decimal(end_prob_b)
-    step_value = _to_decimal(step)
-
-    if step_value <= 0:
-        raise ValueError("Step must be greater than zero.")
-
-    gross_revenue_target = (stake_value * odds_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-    rows = []
-    current = start_value
-
-    while current >= end_value:
-        if is_valid_prob_b_window(prob_a_value, current):
-            combined_probability = (prob_a_value + current).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-            if combined_probability <= PROBABILITY_CAP:
-                total_stakes = (stake_value + stake_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-                profit_target = (gross_revenue_target - total_stakes).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-                rows.append({
-                    "stake": stake_value,
-                    "prob_a": prob_a_value,
-                    "prob_b": current,
-                    "target_wall": target_prob_b(prob_a_value),
-                    "combined_probability": combined_probability,
-                    "gross_revenue_target": gross_revenue_target,
-                    "fixed_profit_target": profit_target,
-                    "cash_flow": profit_target,
-                })
-        current = (current - step_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-
-    return rows
-
-
-def scan_probability_field(prob_a, stake=DEFAULT_STAKE, odds_a=Decimal("3.00"), start_prob_b=DEFAULT_START_PROB_B, end_prob_b=DEFAULT_END_PROB_B, step=DEFAULT_STEP):
-    return make_arbitrage(prob_a, stake=stake, odds_a=odds_a, start_prob_b=start_prob_b, end_prob_b=end_prob_b, step=step)
-
-
-def normalize_odds(raw_odds):
-    value = _to_decimal(raw_odds)
-
-    if value == 0:
-        raise ValueError("Odds must be non-zero.")
-
-    if abs(value) >= Decimal("100"):
-        decimal_odds = american_to_decimal(value)
-    else:
-        decimal_odds = multiplier_to_decimal(value)
-
-    implied_probability_pct = (Decimal("1") / decimal_odds * Decimal("100")).quantize(
-        Decimal("0.01"),
-        rounding=ROUND_HALF_UP,
-    )
-
-    return {
-        "raw_odds": value,
-        "decimal_odds": decimal_odds,
-        "implied_probability_pct": implied_probability_pct,
-    }
-
-
-def arb_index(decimal_odds_a, decimal_odds_b, vig_factor=None, stake_a=None, stake_b=None):
-    a = _to_decimal(decimal_odds_a)
-    b = _to_decimal(decimal_odds_b)
-
-    if a <= 0 or b <= 0:
-        raise ValueError("Odds must be greater than zero.")
-
-    if vig_factor is not None:
-        a = apply_vig(a, vig_factor)
-        b = apply_vig(b, vig_factor)
-
-    if stake_a is not None or stake_b is not None:
-        stake_a_value = _to_decimal(stake_a) if stake_a is not None else Decimal("1")
-        stake_b_value = _to_decimal(stake_b) if stake_b is not None else stake_a_value
-
-        if stake_a_value <= 0 or stake_b_value <= 0:
-            raise ValueError("Stake values must be greater than zero.")
-
-        total_stake = stake_a_value + stake_b_value
-        payout_a = stake_a_value * a
-        payout_b = stake_b_value * b
-        profit_a = payout_a - total_stake
-        profit_b = payout_b - total_stake
-
-        return min(profit_a, profit_b)
-
-    return (Decimal("1") / a) + (Decimal("1") / b)
-
-
-def is_arbitrage(decimal_odds_a, decimal_odds_b, vig_factor=None, stake_a=None, stake_b=None):
-    if stake_a is not None or stake_b is not None:
-        stake_a_value = _to_decimal(stake_a) if stake_a is not None else Decimal("1")
-        stake_b_value = _to_decimal(stake_b) if stake_b is not None else stake_a_value
-        if stake_a_value <= 0 or stake_b_value <= 0:
-            raise ValueError("Stake values must be greater than zero.")
-
-        total_stake = stake_a_value + stake_b_value
-        a = apply_vig(_to_decimal(decimal_odds_a), vig_factor) if vig_factor is not None else _to_decimal(decimal_odds_a)
-        b = apply_vig(_to_decimal(decimal_odds_b), vig_factor) if vig_factor is not None else _to_decimal(decimal_odds_b)
-        payout_a = stake_a_value * a
-        payout_b = stake_b_value * b
-        return (payout_a - total_stake) > 0 and (payout_b - total_stake) > 0
-
-    return arb_index(decimal_odds_a, decimal_odds_b, vig_factor=vig_factor) < 1
 
 
 def decimal_payout(stake, decimal_odds):
@@ -236,278 +69,267 @@ def decimal_payout(stake, decimal_odds):
     return s * d
 
 
-def direct_payout(stake, american_odds):
-    return decimal_payout(stake, american_to_decimal(american_odds))
-
-
-def payout(stake, american_odds):
-    return direct_payout(stake, american_odds)
-
-
-def implied_probability(decimal_odds, vig_factor=None):
+def implied_probability(decimal_odds):
     d = _to_decimal(decimal_odds)
 
     if d <= 0:
         raise ValueError("Decimal odds must be greater than zero.")
 
-    if vig_factor is not None:
-        d = apply_vig(d, vig_factor)
-
     return Decimal("1") / d
 
 
-def probability_in_cents(decimal_odds, vig_factor=None):
-    return implied_probability(decimal_odds, vig_factor=vig_factor) * Decimal("100")
-
-
-def direct_probability(stake, payout):
-    s = _to_decimal(stake)
-    p = _to_decimal(payout)
-
-    if p <= 0:
-        raise ValueError("Payout must be greater than zero.")
-
-    return (s / p) * Decimal("100")
-
-
-def direct_arb(stake_a, payout_a, stake_b, payout_b):
-    total_stake = _to_decimal(stake_a) + _to_decimal(stake_b)
-    payout_a = _to_decimal(payout_a)
-    payout_b = _to_decimal(payout_b)
-
-    arb = (payout_a > total_stake) and (payout_b > total_stake)
-    profit_a = payout_a - total_stake
-    profit_b = payout_b - total_stake
-
-    return {
-        "stake_a": _to_decimal(stake_a),
-        "stake_b": _to_decimal(stake_b),
-        "total_stake": total_stake,
-        "payout_a": payout_a,
-        "payout_b": payout_b,
-        "profit_if_a_wins": profit_a,
-        "profit_if_b_wins": profit_b,
-        "arb": arb,
-        "profit_a": profit_a,
-        "profit_b": profit_b,
-    }
-
-
-def hedge_result(stake_a, odds_a, stake_b, odds_b):
-    total_stake = _to_decimal(stake_a) + _to_decimal(stake_b)
-
-    payout_a = direct_payout(stake_a, odds_a)
-    payout_b = direct_payout(stake_b, odds_b)
-
-    result_a = payout_a - total_stake
-    result_b = payout_b - total_stake
-
-    return result_a, result_b
-
-
-def required_odds(decimal_odds, stake, target_profit):
-    d = _to_decimal(decimal_odds)
-    s = _to_decimal(stake)
-    p = _to_decimal(target_profit)
-
-    if d <= 1:
-        raise ValueError("Decimal odds must be greater than 1.")
-
-    if s <= 0:
-        raise ValueError("Stake must be greater than zero.")
-
-    if p <= 0:
-        raise ValueError("Target profit must be greater than zero.")
-
-    return (s + p) / s
-
-
-def required_hedge_odds(stake_a, odds_a, target_profit):
-    s = _to_decimal(stake_a)
-    d = _to_decimal(odds_a)
-    p = _to_decimal(target_profit)
-
-    if s <= 0:
-        raise ValueError("Stake A must be greater than zero.")
-    if d <= 1:
-        raise ValueError("Side A odds must be greater than 1.")
-    if p <= 0:
-        raise ValueError("Target profit must be greater than zero.")
-
-    payout_a = s * d
-    required_b_stake = payout_a - s - p
-
-    if required_b_stake <= 0:
-        raise ValueError("This profit target is not achievable with the current odds.")
-
-    return payout_a / required_b_stake
-
-
-def normalize_side(stake=None, odds=None, payout=None, vig_factor=DEFAULT_VIG):
-    resolved_stake = _to_decimal(stake) if stake is not None else None
-    resolved_odds = _to_decimal(odds) if odds is not None else None
-    resolved_payout = _to_decimal(payout) if payout is not None else None
-    resolved_vig = validate_vig(vig_factor)
-
-    if resolved_stake is not None and resolved_stake <= 0:
-        raise ValueError("Stake must be greater than zero.")
-    if resolved_odds is not None and resolved_odds <= 0:
-        raise ValueError("Odds must be greater than zero.")
-    if resolved_payout is not None and resolved_payout <= 0:
-        raise ValueError("Payout must be greater than zero.")
-
-    if resolved_payout is not None and resolved_stake is not None and resolved_odds is None:
-        resolved_odds = resolved_payout / resolved_stake
-
-    if resolved_odds is not None and resolved_stake is not None and resolved_payout is None:
-        resolved_payout = resolved_stake * resolved_odds
-
-    if resolved_odds is not None and resolved_payout is not None and resolved_stake is None:
-        resolved_stake = resolved_payout / resolved_odds
-
-    if resolved_stake is None and resolved_payout is None and resolved_odds is None:
-        raise ValueError("At least one of stake, odds, or payout must be provided.")
-
-    if resolved_stake is None:
-        resolved_stake = resolved_payout / resolved_odds
-
-    if resolved_odds is None:
-        if resolved_payout is None:
-            raise ValueError("Cannot infer odds without either payout or stake.")
-        resolved_odds = resolved_payout / resolved_stake
-
-    if resolved_payout is None:
-        resolved_payout = resolved_stake * resolved_odds
-
-    return {
-        "stake": resolved_stake,
-        "odds": resolved_odds,
-        "payout": resolved_payout,
-        "vig_factor": resolved_vig,
-        "vig_adjusted_odds": apply_vig(resolved_odds, resolved_vig),
-    }
-
-
-def normalize_market(stake_a=None, odds_a=None, payout_a=None, stake_b=None, odds_b=None, payout_b=None, vig_factor=DEFAULT_VIG):
-    side_a = normalize_side(stake=stake_a, odds=odds_a, payout=payout_a, vig_factor=vig_factor)
-    side_b = normalize_side(stake=stake_b, odds=odds_b, payout=payout_b, vig_factor=vig_factor)
-
-    return {
-        "stake_a": side_a["stake"],
-        "stake_b": side_b["stake"],
-        "odds_a": side_a["odds"],
-        "odds_b": side_b["odds"],
-        "payout_a": side_a["payout"],
-        "payout_b": side_b["payout"],
-        "vig_factor": side_a["vig_factor"],
-        "vig_adjusted_odds_a": side_a["vig_adjusted_odds"],
-        "vig_adjusted_odds_b": side_b["vig_adjusted_odds"],
-    }
-
-
-def hedge_stake(stake_a, odds_a, odds_b):
+class Odds:
     """
-    Calculate the stake needed on side B to hedge an existing position on side A.
-    stake_a: amount already wagered on side A
-    odds_a: decimal odds of side A
-    odds_b: decimal odds of side B
-    returns: stake to place on side B to lock in profit
+    A single price, held internally as decimal odds -- the one
+    computational base everything in this project runs through.
     """
-    a = _to_decimal(stake_a)
-    odds_a_dec = _to_decimal(odds_a)
-    odds_b_dec = _to_decimal(odds_b)
 
-    if a <= 0:
-        raise ValueError("Stake A must be greater than zero.")
-    if odds_a_dec <= 0 or odds_b_dec <= 0:
-        raise ValueError("Odds must be greater than zero.")
+    def __init__(self, decimal_odds):
+        self.decimal = _to_decimal(decimal_odds)
 
-    return (a * odds_a_dec) / odds_b_dec
+        if self.decimal <= 0:
+            raise ValueError("Decimal odds must be greater than zero.")
+
+    @classmethod
+    def from_decimal(cls, decimal_odds):
+        return cls(decimal_odds)
+
+    @classmethod
+    def from_american(cls, american_odds):
+        return cls(american_to_decimal(american_odds))
+
+    @classmethod
+    def from_multiplier(cls, multiplier):
+        return cls(multiplier_to_decimal(multiplier))
+
+    @classmethod
+    def from_probability(cls, probability):
+        p = _to_decimal(probability)
+
+        # Normalize whole percentages/cents (e.g., 38.57 -> 0.3857)
+        if p >= Decimal("1"):
+            p = p / Decimal("100")
+
+        if p <= 0 or p >= 1:
+            raise ValueError("Probability must be between 0 and 1 (or 0 and 100%).")
+
+        return cls(Decimal("1") / p)
+
+    @classmethod
+    def from_stake_and_payout(cls, stake, payout):
+        s = validate_stake(stake)
+        p = _to_decimal(payout)
+        if p <= 0:
+            raise ValueError("Payout must be greater than zero.")
+        return cls(p / s)
+
+    @property
+    def probability(self):
+        return implied_probability(self.decimal)
+
+    def payout(self, stake):
+        return decimal_payout(stake, self.decimal)
+
+    def arb_index(self, other):
+        """Theoretical arb check -- sum of implied probabilities (< 1.00 = arb)."""
+        return self.probability + other.probability
+
+    def is_arbitrage(self, other, stake_a=None, stake_b=None):
+        if stake_a is not None or stake_b is not None:
+            stake_a_value = _to_decimal(stake_a) if stake_a is not None else Decimal("1")
+            stake_b_value = _to_decimal(stake_b) if stake_b is not None else stake_a_value
+
+            if stake_a_value <= 0 or stake_b_value <= 0:
+                raise ValueError("Stake values must be greater than zero.")
+
+            total_stake = stake_a_value + stake_b_value
+            payout_a = self.payout(stake_a_value)
+            payout_b = other.payout(stake_b_value)
+
+            return (payout_a > total_stake) and (payout_b > total_stake)
+
+        return self.arb_index(other) < 1
+
+    def __repr__(self):
+        return f"Odds(decimal={self.decimal})"
 
 
-def hedge_stake_range(stake_a, odds_a, odds_b_center, spread=Decimal("0.05"), step=Decimal("0.01"), vig_factor=DEFAULT_VIG):
-    """Return a list of hedge-stake references around a center odds value."""
-    a = _to_decimal(stake_a)
-    odds_a_dec = _to_decimal(odds_a)
-    center = _to_decimal(odds_b_center)
-    spread_dec = _to_decimal(spread)
-    step_dec = _to_decimal(step)
+class Concretes:
+    """
+    Immutable representation of all concrete mathematical facts calculated
+    for a given market state. Stored without presentation formatting so
+    any module or downstream interface can inspect the variables directly.
+    """
 
-    if a <= 0:
-        raise ValueError("Stake A must be greater than zero.")
-    if odds_a_dec <= 0 or center <= 0:
-        raise ValueError("Odds must be greater than zero.")
-    if spread_dec < 0:
-        raise ValueError("Spread must be non-negative.")
-    if step_dec <= 0:
-        raise ValueError("Step must be greater than zero.")
+    def __init__(
+        self,
+        odds_a: Odds,
+        odds_b: Odds,
+        stake_a: Optional[Decimal] = None,
+        stake_b: Optional[Decimal] = None,
+        payout_a: Optional[Decimal] = None,
+        payout_b: Optional[Decimal] = None,
+    ):
+        self.odds_a: Odds = odds_a
+        self.odds_b: Odds = odds_b
+        self.decimal_a: Decimal = odds_a.decimal
+        self.decimal_b: Decimal = odds_b.decimal
 
-    start = center - spread_dec
-    end = center + spread_dec
-    samples = []
+        self.prob_a: Decimal = odds_a.probability
+        self.prob_b: Decimal = odds_b.probability
 
-    total_steps = int(((end - start) / step_dec).to_integral_value()) + 1
-    for index in range(total_steps):
-        odds_b = start + (step_dec * index)
-        samples.append({
-            "odds_b": odds_b,
-            "stake_b": hedge_stake(a, odds_a_dec, odds_b),
-            "arb": is_arbitrage(odds_a_dec, odds_b, vig_factor=vig_factor),
-            "probability": implied_probability(odds_b, vig_factor=vig_factor),
-        })
+        self.arb_index: Decimal = odds_a.arb_index(odds_b)
+        self.is_theoretical_arb: bool = self.arb_index < Decimal("1.00")
 
-    return samples
+        overround_pct = self.arb_index * Decimal("100")
+        if self.is_theoretical_arb:
+            self.market_vig: Decimal = Decimal("0.00")
+            self.guaranteed_margin: Decimal = Decimal("100") - overround_pct
+        else:
+            self.market_vig: Decimal = overround_pct - Decimal("100")
+            self.guaranteed_margin: Decimal = Decimal("0.00")
+
+        self.stake_a: Optional[Decimal] = _to_decimal(stake_a) if stake_a is not None else None
+        self.stake_b: Optional[Decimal] = _to_decimal(stake_b) if stake_b is not None else None
+
+        if self.stake_a is not None and self.stake_b is not None:
+            self.total_stake: Optional[Decimal] = self.stake_a + self.stake_b
+            self.payout_a: Optional[Decimal] = (
+                _to_decimal(payout_a) if payout_a is not None else self.odds_a.payout(self.stake_a)
+            )
+            self.payout_b: Optional[Decimal] = (
+                _to_decimal(payout_b) if payout_b is not None else self.odds_b.payout(self.stake_b)
+            )
+            self.profit_a: Optional[Decimal] = self.payout_a - self.total_stake
+            self.profit_b: Optional[Decimal] = self.payout_b - self.total_stake
+            self.is_realized_arb: Optional[bool] = (
+                self.payout_a > self.total_stake and self.payout_b > self.total_stake
+            )
+        else:
+            self.total_stake = None
+            self.payout_a = None
+            self.payout_b = None
+            self.profit_a = None
+            self.profit_b = None
+            self.is_realized_arb = None
+
+
+class Information:
+    """
+    State accumulator and memory manager. Bounded ring buffer
+    to prevent memory buildup.
+    """
+
+    def __init__(self, max_history: int = 1000):
+        self._history: Deque[Concretes] = deque(maxlen=max_history)
+        self.active: Optional[Concretes] = None
+
+    def record(
+        self,
+        odds_a: Odds,
+        odds_b: Odds,
+        stake_a: Optional[Decimal] = None,
+        stake_b: Optional[Decimal] = None,
+        payout_a: Optional[Decimal] = None,
+        payout_b: Optional[Decimal] = None,
+    ) -> Concretes:
+        snapshot = Concretes(odds_a, odds_b, stake_a, stake_b, payout_a, payout_b)
+        self.active = snapshot
+        self._history.append(snapshot)
+        return snapshot
+
+    @property
+    def latest(self) -> Optional[Concretes]:
+        return self.active
+
+    @property
+    def stack(self) -> List[Concretes]:
+        return list(self._history)
+
+    def flush(self) -> None:
+        self._history.clear()
+        self.active = None
 
 
 if __name__ == "__main__":
-
-    print("")
-    print("ARB MATH")
-    print("1) American odds -> decimal odds")
-    print("   Example: 110 or -110")
-    print("2) Multiplier -> decimal odds")
-    print("   Example: 2.50")
-    print("3) Direct probability in cents")
-    print("   Example: stake=20, payout=38.65")
-    print("4) Direct stake + payout arb check")
-    print("   Example: stake A=20, payout A=38.65 | stake B=37.62, payout B=19.65")
+    print("\n=== ARB MATH ENGINE ===")
+    print("1) Check arb by Market Prices / Odds")
+    print("2) Direct Stake + Payout Arb Check")
     print("")
 
-    choice = input("Choose an option (1-4): ").strip()
+    mode = input("Select calculation mode (1 or 2): ").strip()
+    info = Information()
 
-    if choice == "1":
-        odds = Decimal(input("American odds (example: 110 or -110): "))
-        decimal_odds = american_to_decimal(odds)
-        implied = probability_in_cents(decimal_odds)
-        print(f"Decimal odds: {decimal_odds}")
-        print(f"Implied probability: {implied}%")
+    if mode == "1":
+        print("\nSelect Odds Format:")
+        print("1) Decimal / Multiplier (e.g., 2.10, 1.95)")
+        print("2) American Odds (e.g., +110, -120)")
+        print("3) Probability / Cents (e.g., 55.38, 52.33, or 0.55)")
 
-    elif choice == "2":
-        multiplier = Decimal(input("Multiplier (example: 2.50): "))
-        decimal_odds = multiplier_to_decimal(multiplier)
-        implied = probability_in_cents(decimal_odds)
-        print(f"Decimal odds: {decimal_odds}")
-        print(f"Implied probability: {implied}%")
+        odds_choice = input("Choice (1-3): ").strip()
+        if odds_choice == "1":
+            parser = Odds.from_multiplier
+            label = "multiplier/decimal"
+        elif odds_choice == "2":
+            parser = Odds.from_american
+            label = "American odds"
+        elif odds_choice == "3":
+            parser = Odds.from_probability
+            label = "probability / % / cents (e.g., 55.38 or 0.55)"
+        else:
+            print("Invalid choice.")
+            raise SystemExit(1)
 
-    elif choice == "3":
-        stake = Decimal(input("Stake (example: 20): "))
-        payout = Decimal(input("Payout (example: 38.65): "))
-        implied = direct_probability(stake, payout)
-        print(f"Direct probability: {implied}%")
-        print(f"Net on this side: {payout - stake}")
+        odds_a = parser(Decimal(input(f"Side A {label}: ")))
+        odds_b = parser(Decimal(input(f"Side B {label}: ")))
 
-    elif choice == "4":
-        stake_a = Decimal(input("Stake A (example: 20): "))
-        payout_a = Decimal(input("Payout A (example: 38.65): "))
-        stake_b = Decimal(input("Stake B (example: 37.62): "))
-        payout_b = Decimal(input("Payout B (example: 19.65): "))
+        stake_a_in = None
+        stake_b_in = None
+        stake_input = input("\nTest realized stake split? Enter Stake A (or blank to skip): ").strip()
+        if stake_input:
+            stake_a_in = Decimal(stake_input)
+            stake_b_in = Decimal(input("Enter Stake B: "))
 
-        result = direct_arb(stake_a, payout_a, stake_b, payout_b)
+        entry = info.record(odds_a, odds_b, stake_a=stake_a_in, stake_b=stake_b_in)
 
-        print(f"Total stake: {result['total_stake']}")
-        print(f"A payout: {result['payout_a']} | A profit: {result['profit_a']}")
-        print(f"B payout: {result['payout_b']} | B profit: {result['profit_b']}")
-        print(f"ARB: {result['arb']}")
+    elif mode == "2":
+        print("\n--- Direct Stake & Payout Evaluation ---")
+        stake_a = Decimal(input("Stake A: "))
+        payout_a = Decimal(input("Payout A: "))
+        stake_b = Decimal(input("Stake B: "))
+        payout_b = Decimal(input("Payout B: "))
+
+        odds_a = Odds.from_stake_and_payout(stake_a, payout_a)
+        odds_b = Odds.from_stake_and_payout(stake_b, payout_b)
+
+        entry = info.record(
+            odds_a,
+            odds_b,
+            stake_a=stake_a,
+            stake_b=stake_b,
+            payout_a=payout_a,
+            payout_b=payout_b,
+        )
 
     else:
         print("Invalid choice.")
+        raise SystemExit(1)
+
+    print("\n" + "=" * 50)
+    print(f"Side A Price: Decimal {entry.decimal_a:.3f} | Prob: {entry.prob_a * 100:.2f}%")
+    print(f"Side B Price: Decimal {entry.decimal_b:.3f} | Prob: {entry.prob_b * 100:.2f}%")
+    print("-" * 50)
+    print(f"Arb Index        : {entry.arb_index:.4f} ({entry.arb_index * Decimal('100'):.2f}%)")
+    print(f"Theoretical Arb  : {'YES (< 100%)' if entry.is_theoretical_arb else 'NO (>= 100%)'}")
+    if not entry.is_theoretical_arb:
+        print(f"Market Vig       : +{entry.market_vig:.2f}%")
+    else:
+        print(f"Guaranteed Margin: +{entry.guaranteed_margin:.2f}%")
+
+    if entry.total_stake is not None:
+        print("-" * 50)
+        print(f"Total Capital Outflow : ${entry.total_stake:.2f}")
+        print(f"A: Stake ${entry.stake_a:.2f} -> Payout ${entry.payout_a:.2f} | Net: ${entry.profit_a:+.2f}")
+        print(f"B: Stake ${entry.stake_b:.2f} -> Payout ${entry.payout_b:.2f} | Net: ${entry.profit_b:+.2f}")
+        print(f"Realized Arb          : {'YES' if entry.is_realized_arb else 'NO'}")
+    print("=" * 50)

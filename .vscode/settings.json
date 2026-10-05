@@ -12,5 +12,10 @@
     "plaintext": false,
     "markdown": false,
     "scminput": false
-  }
+  },
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "-q"
+  ],
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
 }
