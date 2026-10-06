@@ -1,7 +1,5 @@
 WAVE
 
-
-
 Waves purpose is to show the relationship between Probability, Payout, and Stake.
 
 These is only one concrete of Wave: Probability. Probability is the starting point. Probability converts itself into a multiplier.
