@@ -1,0 +1,89 @@
+WAVE
+
+
+
+Waves purpose is to show the relationship between Probability, Payout, and Stake.
+
+These is only one concrete of Wave: Probability. Probability is the starting point. Probability converts itself into a multiplier.
+
+Probability → Multiplier
+
+The multiplier is calculated from probability.
+
+Multiplier = 1 ÷ Probability
+
+The multiplier is the bridge between probability and the money values.
+
+From there, Wave has two operations.
+
+PROBABILITY + STAKE → PAYOUT
+
+If we know the probability and the amount of stake, Wave finds the payout.
+
+Payout = Stake × Multiplier
+
+Because the multiplier is derived from probability, this can also be written as:
+
+Payout = Stake ÷ Probability
+
+For example, if the probability is 60%, the multiplier is approximately 1.6667. A $100 stake produces a payout of approximately $166.67.
+
+PROBABILITY + PAYOUT → STAKE
+
+If we know the probability and the payout we want to produce, Wave finds the required stake.
+
+Stake = Payout ÷ Multiplier
+
+Because the multiplier is derived from probability, this can also be written as:
+
+Stake = Payout × Probability
+
+For example, if the probability is 60% and the desired payout is $166.67, the required stake is approximately $100.
+
+The probability is constant within either operation. We are changing which money value we are solving for.
+
+If we have the stake, Wave tells us the payout.
+
+If we have the payout, Wave tells us the stake.
+
+Wave gives us both directions of the same relationship.
+
+Probability
+↓
+Multiplier
+↓
+Payout ↔ Stake
+
+Wave can also display a probability range while keeping the payout fixed.
+
+For example, if the fixed payout is $166.67, Wave can show the stake required at different probabilities.
+
+100% → $166.67 stake
+90% → $150.00 stake
+80% → $133.34 stake
+70% → $116.67 stake
+60% → $100.00 stake
+50% → $83.34 stake
+40% → $66.67 stake
+30% → $50.00 stake
+20% → $33.33 stake
+10% → $16.67 stake
+1% → $1.67 stake
+
+The payout stays fixed. Probability changes. Wave shows the stake required at each probability to produce that same payout.
+
+Wave's one simple job here is to represent the economic relationship between Probability, Payout, and Stake.
+
+The core machine is:
+
+Probability
+→ Multiplier
+→ Payout or Stake
+
+Probability + Stake → Payout
+
+Probability + Payout → Stake
+
+All money calculations use Decimal.
+
+The purpose of Wave is to make the relationship visible across probability states. It lets us see what a fixed payout requires as probability changes and what payout a given stake produces at a given probability.
