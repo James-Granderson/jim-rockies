@@ -6,6 +6,8 @@ Knowledge exists at your disposal as a programmer. A developer may carry a myria
 
 Select the precise tool for the job. Do not deploy every framework or abstraction simply because you possess it. Match the proper tool to the objective, skin the cat cleanly, and return to execution.
 
+List, classify and organize all variables before writing or reviewing any code, and ensure they correspond to the intended design.
+
 Know your cognitive wheel and the available methods you may use: select wisely, execute, and move on.
 
 2. Inspect for duplication first.
