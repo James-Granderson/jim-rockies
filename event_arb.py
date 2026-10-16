@@ -3,8 +3,8 @@ import arb_math
 
 
 def load_event(filename="test_data.json"):
-    data = open(filename).read()
-    payload = json.loads(data)
+    with open(filename) as handle:
+        payload = json.load(handle)
     return payload["events"][0]
 
 
@@ -40,33 +40,34 @@ def get_best_odds(event, away, home):
 
 def analyze_event(event):
     away, home = get_teams(event)
-
-    best_away, best_home = get_best_odds(
-        event,
-        away,
-        home
-    )
+    best_away, best_home = get_best_odds(event, away, home)
 
     decimal_away = arb_math.american_to_decimal(best_away)
     decimal_home = arb_math.american_to_decimal(best_home)
-
-    arb = arb_math.arb_index(
-        decimal_away,
-        decimal_home
-    )
+    arb = arb_math.arb_index(decimal_away, decimal_home)
+    is_arbitrage = arb_math.is_arbitrage(decimal_away, decimal_home)
 
     return {
         "away": away,
         "home": home,
         "best_away": best_away,
         "best_home": best_home,
-        "arb": arb
+        "arb": arb,
+        "is_arbitrage": is_arbitrage,
     }
 
 
 def main():
-    event = load_event()
-    return analyze_event(event)
+    result = analyze_event(load_event())
+    away = result["away"]
+    home = result["home"]
+
+    print("{} @ {}".format(away["abbreviation"], home["abbreviation"]))
+    print("Best {}: {:+g}".format(away["abbreviation"], result["best_away"]))
+    print("Best {}: {:+g}".format(home["abbreviation"], result["best_home"]))
+    print("Arb index: {:.4f}".format(result["arb"]))
+    print("Arbitrage:", result["is_arbitrage"])
+    return result
 
 
 if __name__ == "__main__":

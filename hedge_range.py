@@ -8,9 +8,8 @@ GREEN = "\033[38;2;70;210;90m"
 
 
 def color_value(value, width=10):
-
     value = float(value)
-    text = "$%+.2f" % value
+    text = "${:+.2f}".format(value)
 
     if value < 0:
         color = RED
@@ -23,73 +22,54 @@ def color_value(value, width=10):
 
 
 def color_dollar(value, width=10):
-
-    text = "$%-8.0f" % value
+    text = "${:<8.0f}".format(value)
     return GREEN + text.ljust(width) + RESET
 
 
 def analyze_range(odds_a, odds_b, total_stake):
-
     decimal_a = arb_math.american_to_decimal(odds_a)
     decimal_b = arb_math.american_to_decimal(odds_b)
-
     index = arb_math.arb_index(decimal_a, decimal_b)
+    odds_status = "ARBITRAGE" if arb_math.is_arbitrage(decimal_a, decimal_b) else "NO ARBITRAGE"
 
     scale = []
 
     for stake_a in range(int(total_stake) + 1):
-
         stake_b = total_stake - stake_a
-
         payout_a = arb_math.payout(stake_a, odds_a)
         payout_b = arb_math.payout(stake_b, odds_b)
-
         profit_a = payout_a - total_stake
         profit_b = payout_b - total_stake
-
-        worst = min(profit_a, profit_b)
-        best = max(profit_a, profit_b)
 
         scale.append({
             "stake_a": stake_a,
             "stake_b": stake_b,
             "profit_a": profit_a,
             "profit_b": profit_b,
-            "worst": worst,
-            "best": best
+            "worst": min(profit_a, profit_b),
+            "best": max(profit_a, profit_b),
         })
 
-    return index, scale
+    return index, odds_status, scale
 
 
 def find_best_arb(scale):
-
-    positions = []
-
-    for r in scale:
-
-        if r["profit_a"] >= 0 and r["profit_b"] >= 0:
-            positions.append(r)
+    positions = [
+        row for row in scale
+        if row["profit_a"] >= 0 and row["profit_b"] >= 0
+    ]
 
     if not positions:
         return None
 
-    return max(
-        positions,
-        key=lambda x: (x["worst"], x["best"])
-    )
+    return max(positions, key=lambda x: (x["worst"], x["best"]))
 
 
 def find_max_profit(scale):
-
-    return max(
-        scale,
-        key=lambda x: x["best"]
-    )
+    return max(scale, key=lambda x: x["best"])
 
 
 def find_best_high_ev(scale, high_ev_side):
-
     if high_ev_side == "A":
         favorite = "profit_a"
         hedge = "profit_b"
@@ -99,335 +79,202 @@ def find_best_high_ev(scale, high_ev_side):
 
     best = None
 
-    for r in scale:
-
-        hedge_result = r[hedge]
-        favorite_result = r[favorite]
+    for row in scale:
+        hedge_result = row[hedge]
+        favorite_result = row[favorite]
 
         if best is None:
-            best = r
+            best = row
             continue
 
-        best_hedge_result = best[hedge]
         current_distance = abs(hedge_result)
-        best_distance = abs(best_hedge_result)
+        best_distance = abs(best[hedge])
 
-        # Primary objective:
-        # minimize the hedge-side loss / distance from zero.
-        #
-        # Secondary objective:
-        # preserve as much high-EV profit as possible.
         if current_distance < best_distance:
-            best = r
-
-        elif current_distance == best_distance:
-
-            if favorite_result > best[favorite]:
-                best = r
+            best = row
+        elif current_distance == best_distance and favorite_result > best[favorite]:
+            best = row
 
     return best
 
 
 def print_money(value, width=11):
-
     return color_value(value, width)
 
 
 def print_stake(value, width=10):
-
     return color_dollar(value, width)
 
 
 def print_high_ev_position(position, high_ev_side):
-
-    print ""
-    print "HIGH-EV POSITION"
-    print "----------------------------------------"
-
-    if high_ev_side == "A":
-
-        print "HIGH-EV SIDE: A"
-        print "HEDGE SIDE:   B"
-
-    else:
-
-        print "HIGH-EV SIDE: B"
-        print "HEDGE SIDE:   A"
-
-    print ""
-    print "A: %s" % print_stake(
-        position["stake_a"]
-    )
-
-    print "B: %s" % print_stake(
-        position["stake_b"]
-    )
-
-    print ""
-    print "A WINS:  %s" % print_money(
-        position["profit_a"]
-    )
-
-    print "B WINS:  %s" % print_money(
-        position["profit_b"]
-    )
+    print()
+    print("HIGH-EV POSITION")
+    print("----------------------------------------")
 
     if high_ev_side == "A":
-
+        print("HIGH-EV SIDE: A")
+        print("HEDGE SIDE:   B")
         favorite_profit = position["profit_a"]
         hedge_result = position["profit_b"]
-
     else:
-
+        print("HIGH-EV SIDE: B")
+        print("HEDGE SIDE:   A")
         favorite_profit = position["profit_b"]
         hedge_result = position["profit_a"]
 
-    print ""
-    print "HIGH-EV PROFIT: %s" % print_money(
-        favorite_profit
-    )
-
-    print "HEDGE RESULT:   %s" % print_money(
-        hedge_result
-    )
-
-    print ""
-    print "WORST CASE:  %s" % print_money(
-        position["worst"]
-    )
-
-    print "BEST CASE:   %s" % print_money(
-        position["best"]
-    )
+    print()
+    print("A: {}".format(print_stake(position["stake_a"])))
+    print("B: {}".format(print_stake(position["stake_b"])))
+    print()
+    print("A WINS:  {}".format(print_money(position["profit_a"])))
+    print("B WINS:  {}".format(print_money(position["profit_b"])))
+    print()
+    print("HIGH-EV PROFIT: {}".format(print_money(favorite_profit)))
+    print("HEDGE RESULT:   {}".format(print_money(hedge_result)))
+    print()
+    print("WORST CASE:  {}".format(print_money(position["worst"])))
+    print("BEST CASE:   {}".format(print_money(position["best"])))
 
 
 def print_hedge_range(scale, position):
-
     center = int(position["stake_a"])
-
     start = max(0, center - 5)
     end = min(len(scale) - 1, center + 5)
 
-    print ""
-    print "HEDGE RANGE"
-    print "----------------------------------------"
-    print "A STAKE    B STAKE    A WIN       B WIN"
+    print()
+    print("HEDGE RANGE")
+    print("----------------------------------------")
+    print("A STAKE    B STAKE    A WIN       B WIN")
 
     for i in range(start, end + 1):
-
-        r = scale[i]
-
-        print "%s %s %s %s" % (
-            print_stake(r["stake_a"]),
-            print_stake(r["stake_b"]),
-            print_money(r["profit_a"]),
-            print_money(r["profit_b"])
-        )
+        row = scale[i]
+        print("{} {} {} {}".format(
+            print_stake(row["stake_a"]),
+            print_stake(row["stake_b"]),
+            print_money(row["profit_a"]),
+            print_money(row["profit_b"]),
+        ))
 
 
 def print_reference_scale(scale):
-
-    print ""
-    print "REFERENCE SCALE"
-    print "----------------------------------------"
-    print "A STAKE    B STAKE    A WIN       B WIN"
+    print()
+    print("REFERENCE SCALE")
+    print("----------------------------------------")
+    print("A STAKE    B STAKE    A WIN       B WIN")
 
     step = 5
 
     for i in range(0, len(scale), step):
-
-        r = scale[i]
-
-        print "%s %s %s %s" % (
-            print_stake(r["stake_a"]),
-            print_stake(r["stake_b"]),
-            print_money(r["profit_a"]),
-            print_money(r["profit_b"])
-        )
+        row = scale[i]
+        print("{} {} {} {}".format(
+            print_stake(row["stake_a"]),
+            print_stake(row["stake_b"]),
+            print_money(row["profit_a"]),
+            print_money(row["profit_b"]),
+        ))
 
     if (len(scale) - 1) % step != 0:
-
-        r = scale[-1]
-
-        print "%s %s %s %s" % (
-            print_stake(r["stake_a"]),
-            print_stake(r["stake_b"]),
-            print_money(r["profit_a"]),
-            print_money(r["profit_b"])
-        )
+        row = scale[-1]
+        print("{} {} {} {}".format(
+            print_stake(row["stake_a"]),
+            print_stake(row["stake_b"]),
+            print_money(row["profit_a"]),
+            print_money(row["profit_b"]),
+        ))
 
 
 def get_number(prompt):
-
     while True:
-
         try:
             return float(input(prompt))
-
         except ValueError:
-
-            print ""
-            print "Invalid input. Please enter a number."
-            print ""
+            print()
+            print("Invalid input. Please enter a number.")
+            print()
 
 
 def get_side():
-
     while True:
-
-        side = raw_input(
-            "Which side is your HIGH-EV side? (A/B): "
-        ).strip().upper()
-
+        side = input("Which side is your HIGH-EV side? (A/B): ").strip().upper()
         if side in ("A", "B"):
             return side
-
-        print ""
-        print "Please enter A or B."
-        print ""
+        print()
+        print("Please enter A or B.")
+        print()
 
 
 if __name__ == "__main__":
-
-    print ""
-    print "========================================"
-    print "          ARB / HEDGE ANALYSIS"
-    print "========================================"
-    print ""
+    print()
+    print("========================================")
+    print("          ARB / HEDGE ANALYSIS")
+    print("========================================")
+    print()
 
     try:
-
-        odds_a = get_number(
-            "Enter American odds for outcome A: "
-        )
-
-        odds_b = get_number(
-            "Enter American odds for outcome B: "
-        )
-
-        total_stake = get_number(
-            "Enter total stake: "
-        )
+        odds_a = get_number("Enter American odds for outcome A: ")
+        odds_b = get_number("Enter American odds for outcome B: ")
+        total_stake = get_number("Enter total stake: ")
 
         if total_stake <= 0:
-            raise ValueError(
-                "Total stake must be greater than zero."
-            )
+            raise ValueError("Total stake must be greater than zero.")
 
         high_ev_side = get_side()
-
-        index, odds_status, scale = analyze_range(
-            odds_a,
-            odds_b,
-            total_stake
-        )
-
+        index, odds_status, scale = analyze_range(odds_a, odds_b, total_stake)
         best_arb = find_best_arb(scale)
-        best_high_ev = find_best_high_ev(
-            scale,
-            high_ev_side
-        )
+        best_high_ev = find_best_high_ev(scale, high_ev_side)
         max_profit = find_max_profit(scale)
 
-        print ""
-        print "A: %+g" % odds_a
-        print "B: %+g" % odds_b
-        print "Stake: $%.2f" % total_stake
-        print ""
-
-        print "ARB INDEX: %.4f" % index
-        print "STATUS:", odds_status
+        print()
+        print("A: {:+g}".format(odds_a))
+        print("B: {:+g}".format(odds_b))
+        print("Stake: ${:.2f}".format(total_stake))
+        print()
+        print("ARB INDEX: {:.4f}".format(index))
+        print("STATUS:", odds_status)
 
         if best_arb:
-
-            print ""
-            print "BEST ARB POSITION"
-            print "----------------------------------------"
-
-            print "A: %s" % print_stake(
-                best_arb["stake_a"]
-            )
-
-            print "B: %s" % print_stake(
-                best_arb["stake_b"]
-            )
-
-            print ""
-            print "A WINS:  %s" % print_money(
-                best_arb["profit_a"]
-            )
-
-            print "B WINS:  %s" % print_money(
-                best_arb["profit_b"]
-            )
-
-            print ""
-            print "GUARANTEED: %s" % print_money(
-                best_arb["worst"]
-            )
-
-            print "MAXIMUM:   %s" % print_money(
-                best_arb["best"]
-            )
-
+            print()
+            print("BEST ARB POSITION")
+            print("----------------------------------------")
+            print("A: {}".format(print_stake(best_arb["stake_a"])))
+            print("B: {}".format(print_stake(best_arb["stake_b"])))
+            print()
+            print("A WINS:  {}".format(print_money(best_arb["profit_a"])))
+            print("B WINS:  {}".format(print_money(best_arb["profit_b"])))
+            print()
+            print("GUARANTEED: {}".format(print_money(best_arb["worst"])))
+            print("MAXIMUM:   {}".format(print_money(best_arb["best"])))
         else:
+            print()
+            print("NO ARBITRAGE POSITION")
 
-            print ""
-            print "NO ARBITRAGE POSITION"
+        print_high_ev_position(best_high_ev, high_ev_side)
 
-        print_high_ev_position(
-            best_high_ev,
-            high_ev_side
-        )
+        print()
+        print("MAXIMUM PROFIT POSITION")
+        print("----------------------------------------")
+        print("A: {}".format(print_stake(max_profit["stake_a"])))
+        print("B: {}".format(print_stake(max_profit["stake_b"])))
+        print()
+        print("A WINS:  {}".format(print_money(max_profit["profit_a"])))
+        print("B WINS:  {}".format(print_money(max_profit["profit_b"])))
+        print()
+        print("MAXIMUM: {}".format(print_money(max_profit["best"])))
 
-        print ""
-        print "MAXIMUM PROFIT POSITION"
-        print "----------------------------------------"
+        print_hedge_range(scale, best_high_ev)
+        print_reference_scale(scale)
 
-        print "A: %s" % print_stake(
-            max_profit["stake_a"]
-        )
-
-        print "B: %s" % print_stake(
-            max_profit["stake_b"]
-        )
-
-        print ""
-        print "A WINS:  %s" % print_money(
-            max_profit["profit_a"]
-        )
-
-        print "B WINS:  %s" % print_money(
-            max_profit["profit_b"]
-        )
-
-        print ""
-        print "MAXIMUM: %s" % print_money(
-            max_profit["best"]
-        )
-
-        print_hedge_range(
-            scale,
-            best_high_ev
-        )
-
-        print_reference_scale(
-            scale
-        )
-
-        print ""
-        print "========================================"
+        print()
+        print("========================================")
 
     except ValueError as error:
-
-        print ""
-        print "ERROR:", error
-        print ""
-        print "Please check your inputs and try again."
+        print()
+        print("ERROR:", error)
+        print()
+        print("Please check your inputs and try again.")
 
     except Exception as error:
-
-        print ""
-        print "UNEXPECTED ERROR:", error
-        print ""
-        print "The calculation could not be completed."
+        print()
+        print("UNEXPECTED ERROR:", error)
+        print()
+        print("The calculation could not be completed.")

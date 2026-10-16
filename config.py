@@ -1,1 +1,7 @@
-API_KEY = "8a7265f3d7ae85eb02da165215eac3e6df1fc60807a1dacbb86dc9183f375489"
+import os
+
+API_KEY = os.environ.get("RUNDOWN_API_KEY", "")
+ENDPOINT = os.environ.get(
+    "RUNDOWN_ENDPOINT",
+    "PUT_THE_RUNDOWN_ENDPOINT_HERE",
+)

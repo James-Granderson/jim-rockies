@@ -1,18 +1,8 @@
-#python get_test.py
-"""
-This program demonstrates
-a basic HTTP GET request.
-"""
+"""Basic HTTP GET using the Python 3 standard library."""
 
-import urllib2
+from urllib.request import urlopen
 
-
-response = urllib2.urlopen("https://example.com")
-
-
-print response.info()
-print response
-
-data = response.read()
-
-print data
+with urlopen("https://example.com") as response:
+    print(response.info())
+    print(response)
+    print(response.read())
