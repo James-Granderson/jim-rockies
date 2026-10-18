@@ -2,6 +2,16 @@
 
 This file is a compact tool index for the project. The idea is that each file has a clear purpose and a clear "job" in the system, so the repo reads like a set of tools rather than a pile of scripts.
 
+## Using the tools
+
+The browser control surface is served by `tools_server.py`. From the project directory, run:
+
+```text
+python3 tools_server.py
+```
+
+Then open `http://127.0.0.1:8000/tools.html`. The tool workspace sends JSON inputs to the existing Python modules and renders their returned values. It does not acquire live market data or place bets.
+
 ## Core math and contracts
 
 ### arb_math.py
@@ -34,6 +44,19 @@ What it does:
 - describes how the stake range is evaluated
 
 ## Market / reach analysis tools
+
+### arb_wave.py
+Purpose: probability-wave calculator for a single side.
+
+What it does:
+- converts probability and stake into total payout
+- converts probability and payout into required stake
+- sweeps an adjustable probability range at a fixed target profit
+- keeps the target profit constant while showing the rising stake requirement
+
+Think of this as: "what stake and payout are required at each probability to reach the same target profit?"
+
+Wave does not establish arbitrage between two sides. It represents one side's probability, payout, and stake relationship.
 
 ### arb_reach.py
 Purpose: must-reach target calculator.

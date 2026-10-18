@@ -8,6 +8,8 @@ from typing import Deque, List, Optional
 
 getcontext().prec = 28
 
+DEFAULT_VIG_DECIMAL = Decimal("0.10")
+
 
 def _to_decimal(value):
     if isinstance(value, Decimal):
@@ -76,6 +78,50 @@ def implied_probability(decimal_odds):
         raise ValueError("Decimal odds must be greater than zero.")
 
     return Decimal("1") / d
+
+
+def arb_index(decimal_odds_a, decimal_odds_b):
+    """Return the combined implied probability of two decimal prices."""
+
+    odds_a = _to_decimal(decimal_odds_a)
+    odds_b = _to_decimal(decimal_odds_b)
+    if odds_a <= 0 or odds_b <= 0:
+        raise ValueError("Decimal odds must be greater than zero.")
+    return implied_probability(odds_a) + implied_probability(odds_b)
+
+
+def validate_fee_decimal(fee):
+    """Validate a fee expressed as a decimal fraction, such as 0.05."""
+
+    value = _to_decimal(fee)
+    if value < 0 or value >= 1:
+        raise ValueError("Fee must be between 0 and 1.")
+    return value
+
+
+def apply_fee_decimal(decimal_odds, fee):
+    """Reduce decimal odds by a validated proportional fee."""
+
+    odds = _to_decimal(decimal_odds)
+    if odds <= 0:
+        raise ValueError("Decimal odds must be greater than zero.")
+    fee_value = validate_fee_decimal(fee)
+    adjusted = odds * (Decimal("1") - fee_value)
+    if adjusted <= 0:
+        raise ValueError("Fee-adjusted decimal odds must be greater than zero.")
+    return adjusted
+
+
+def apply_vig(decimal_odds, vig=DEFAULT_VIG_DECIMAL):
+    """Apply the project's fixed decimal-odds vig adjustment."""
+
+    odds = _to_decimal(decimal_odds)
+    vig_value = _to_decimal(vig)
+    if odds <= 0:
+        raise ValueError("Decimal odds must be greater than zero.")
+    if vig_value < 0 or odds <= vig_value:
+        raise ValueError("Vig must leave positive decimal odds.")
+    return odds - vig_value
 
 
 class Odds:

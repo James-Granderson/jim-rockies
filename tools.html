@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jim Rockies tool directory for market pricing, arbitrage, hedge analysis, and data acquisition.">
+    <title>JR Tools — Jim Rockies</title>
+    <style>
+        :root {
+            --ink: #edf2f0;
+            --muted: #9eaaa6;
+            --panel: #16201f;
+            --panel-raised: #1b2826;
+            --line: rgba(220, 237, 230, 0.12);
+            --green: #9fe870;
+            --green-dark: #203b27;
+            --amber: #f0c878;
+            --amber-dark: #493c22;
+            --blue: #8fc8ed;
+            --blue-dark: #20384a;
+            --bg: #0d1414;
+            --shadow: 0 18px 45px rgba(0, 0, 0, 0.2);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 85% 0%, rgba(92, 146, 88, 0.16), transparent 32rem),
+                var(--bg);
+            font: 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        a { color: inherit; }
+
+        .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 24px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            font-weight: 750;
+            letter-spacing: 0.02em;
+        }
+
+        .mark {
+            display: grid;
+            place-items: center;
+            width: 34px;
+            height: 34px;
+            border: 1px solid rgba(159, 232, 112, 0.55);
+            border-radius: 10px;
+            color: var(--green);
+            font-size: 12px;
+            letter-spacing: -0.05em;
+        }
+
+        .nav-link { color: var(--muted); text-decoration: none; }
+        .nav-link:hover { color: var(--ink); }
+
+        .hero { padding: 72px 0 48px; max-width: 790px; }
+        .eyebrow { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+        h1 { margin: 13px 0 18px; font-size: clamp(42px, 7vw, 74px); line-height: 0.98; letter-spacing: -0.065em; }
+        .hero p { max-width: 650px; margin: 0; color: var(--muted); font-size: 18px; }
+
+        .overview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            margin-bottom: 48px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--line);
+        }
+
+        .overview-item { padding: 19px 22px; background: rgba(22, 32, 31, 0.72); }
+        .overview-item strong { display: block; font-size: 23px; letter-spacing: -0.04em; }
+        .overview-item span { color: var(--muted); font-size: 13px; }
+
+        .section-heading {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 18px;
+        }
+
+        h2 { margin: 0; font-size: 24px; letter-spacing: -0.04em; }
+        .section-heading p { margin: 0; color: var(--muted); }
+
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+        .filter {
+            padding: 8px 13px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--muted);
+            background: transparent;
+            cursor: pointer;
+            font: inherit;
+            font-size: 13px;
+        }
+        .filter:hover, .filter[aria-pressed="true"] { border-color: rgba(159, 232, 112, 0.55); color: var(--green); background: rgba(159, 232, 112, 0.08); }
+
+        .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding-bottom: 56px; }
+
+        .tool-card {
+            display: flex;
+            flex-direction: column;
+            min-height: 292px;
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: linear-gradient(145deg, rgba(27, 40, 38, 0.98), rgba(20, 29, 28, 0.98));
+            box-shadow: var(--shadow);
+            transition: transform 160ms ease, border-color 160ms ease;
+        }
+        .tool-card:hover { transform: translateY(-3px); border-color: rgba(159, 232, 112, 0.35); }
+        .tool-card[hidden] { display: none; }
+
+        .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+        .tool-icon {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            color: var(--green);
+            background: var(--green-dark);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+        .tool-card[data-kind="analysis"] .tool-icon { color: var(--blue); background: var(--blue-dark); }
+        .tool-card[data-kind="data"] .tool-icon { color: var(--amber); background: var(--amber-dark); }
+        .status { padding: 4px 8px; border-radius: 999px; color: var(--muted); background: rgba(255,255,255,0.06); font-size: 11px; white-space: nowrap; }
+        .status.ready { color: var(--green); background: var(--green-dark); }
+        .status.research { color: var(--amber); background: var(--amber-dark); }
+        .tool-card h3 { margin: 20px 0 5px; font-size: 20px; letter-spacing: -0.035em; }
+        .file { color: var(--muted); font: 12px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; }
+        .tool-card p { flex: 1; margin: 16px 0 22px; color: var(--muted); }
+        .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+        .meta span { padding: 4px 7px; border: 1px solid var(--line); border-radius: 5px; color: #c1cbc7; font-size: 11px; }
+        .card-actions { display: flex; align-items: center; gap: 14px; }
+        .button { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 13px; border-radius: 8px; color: #102011; background: var(--green); font-size: 13px; font-weight: 750; text-decoration: none; }
+        .button:hover { filter: brightness(1.08); }
+        .source-link { color: var(--muted); font-size: 13px; text-decoration: none; }
+        .source-link:hover { color: var(--ink); }
+
+        .note {
+            display: flex;
+            gap: 14px;
+            margin: 0 0 70px;
+            padding: 20px 22px;
+            border: 1px solid rgba(240, 200, 120, 0.25);
+            border-radius: 14px;
+            color: #d4c6a6;
+            background: rgba(73, 60, 34, 0.22);
+        }
+        .note strong { color: var(--amber); }
+        footer { padding: 22px 0 30px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+
+        @media (max-width: 850px) { .tools-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) {
+            .shell { width: min(100% - 28px, 1180px); }
+            .topbar { padding: 18px 0; }
+            .hero { padding: 54px 0 36px; }
+            .overview, .tools-grid { grid-template-columns: 1fr; }
+            .section-heading { display: block; }
+            .section-heading p { margin-top: 5px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <header class="topbar">
+            <a class="brand" href="jimrockies.html" aria-label="Jim Rockies home">
+                <span class="mark">JR</span>
+                <span>Jim Rockies</span>
+            </a>
+            <a class="nav-link" href="README.md">Project model ↗</a>
+        </header>
+
+        <main>
+            <section class="hero">
+                <div class="eyebrow">Research workbench / tool directory</div>
+                <h1>Put every tool in its place.</h1>
+                <p>One index for the project’s price engines, position analysis, event checks, and data layers. The page describes what each tool does without pretending a terminal module is already a browser app.</p>
+            </section>
+
+            <section class="overview" aria-label="Tool directory summary">
+                <div class="overview-item"><strong>13</strong><span>catalogued components</span></div>
+                <div class="overview-item"><strong>4</strong><span>analysis layers</span></div>
+                <div class="overview-item"><strong>3</strong><span>browser surfaces</span></div>
+            </section>
+
+            <section aria-labelledby="directory-title">
+                <div class="section-heading">
+                    <div>
+                        <h2 id="directory-title">Tool directory</h2>
+                        <p>Choose a responsibility to see where it lives.</p>
+                    </div>
+                </div>
+
+                <div class="controls" role="toolbar" aria-label="Filter tools">
+                    <button class="filter" type="button" data-filter="all" aria-pressed="true">All tools</button>
+                    <button class="filter" type="button" data-filter="math" aria-pressed="false">Math &amp; pricing</button>
+                    <button class="filter" type="button" data-filter="analysis" aria-pressed="false">Analysis</button>
+                    <button class="filter" type="button" data-filter="data" aria-pressed="false">Data &amp; workflow</button>
+                    <button class="filter" type="button" data-filter="display" aria-pressed="false">Display</button>
+                </div>
+
+                <div class="tools-grid" id="tools-grid">
+                    <article class="tool-card" data-kind="math">
+                        <div class="card-top"><div class="tool-icon">01</div><span class="status ready">engine</span></div>
+                        <h3>Arb Math</h3><div class="file">arb_math.py</div>
+                        <p>The trusted numerical contract: odds conversion, validation, implied probability, arbitrage index, payouts, and required odds.</p>
+                        <div class="meta"><span>Decimal</span><span>Input validation</span><span>Core layer</span></div>
+                        <div class="card-actions"><a class="button" href="tool.html?tool=arb-math">Use tool</a><a class="source-link" href="arb_math.py">Source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="analysis">
+                        <div class="card-top"><div class="tool-icon">02</div><span class="status ready">terminal</span></div>
+                        <h3>Arb Reach</h3><div class="file">arb_reach.py</div>
+                        <p>Measures the opposing price needed to reach a target, using an assumed, observed, or neutral probability reference.</p>
+                        <div class="meta"><span>Reference scale</span><span>Target margin</span><span>$100 anchor</span></div>
+                        <div class="card-actions"><a class="button" href="tool.html?tool=arb-reach">Use tool</a><a class="source-link" href="arb_reach.py">Source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="analysis">
+                        <div class="card-top"><div class="tool-icon">03</div><span class="status ready">terminal</span></div>
+                        <h3>Arb Wave</h3><div class="file">arb_wave.py</div>
+                        <p>Sweeps probability states to show the required stake and total payout for a fixed net-profit target.</p>
+                        <div class="meta"><span>1% default</span><span>Target profit</span><span>Single side</span></div>
+                        <div class="card-actions"><a class="button" href="tool.html?tool=arb-wave">Use tool</a><a class="source-link" href="arb_wave.py">Source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="analysis">
+                        <div class="card-top"><div class="tool-icon">04</div><span class="status ready">terminal</span></div>
+                        <h3>Hedge Range</h3><div class="file">hedge_range.py</div>
+                        <p>Maps every stake split for two sides so arbitrage, high-EV, and maximum-profit positions remain visible as choices.</p>
+                        <div class="meta"><span>Stake splits</span><span>Profit / loss</span><span>Decision space</span></div>
+                        <div class="card-actions"><a class="button" href="tool.html?tool=hedge-range">Use tool</a><a class="source-link" href="hedge_range.py">Source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="analysis">
+                        <div class="card-top"><div class="tool-icon">05</div><span class="status ready">terminal</span></div>
+                        <h3>Event Arb</h3><div class="file">event_arb.py</div>
+                        <p>Loads an event payload, finds the best away and home prices, then evaluates the resulting market relationship.</p>
+                        <div class="meta"><span>Event payload</span><span>Best odds</span><span>Market check</span></div>
+                        <div class="card-actions"><a class="button" href="tool.html?tool=event-arb">Use tool</a><a class="source-link" href="event_arb.py">Source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="data">
+                        <div class="card-top"><div class="tool-icon">06</div><span class="status research">research</span></div>
+                        <h3>Scraper</h3><div class="file">scraper.py</div>
+                        <p>The intended acquisition boundary for sportsbook and market data. It is currently a research surface, not a connected scanner.</p>
+                        <div class="meta"><span>Ingestion</span><span>External data</span><span>Not wired</span></div>
+                        <div class="card-actions"><a class="button" href="scraper.py">Inspect source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="display">
+                        <div class="card-top"><div class="tool-icon">07</div><span class="status ready">helper</span></div>
+                        <h3>Display</h3><div class="file">display.py</div>
+                        <p>Formatting helpers for readable reports and financial values. Presentation stays separate from the numerical engine.</p>
+                        <div class="meta"><span>Formatting</span><span>Reports</span><span>Output layer</span></div>
+                        <div class="card-actions"><a class="button" href="display.py">Inspect source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="data">
+                        <div class="card-top"><div class="tool-icon">08</div><span class="status ready">config</span></div>
+                        <h3>Configuration</h3><div class="file">config.py</div>
+                        <p>Holds runtime settings and project defaults used by the Python workflow.</p>
+                        <div class="meta"><span>Defaults</span><span>Runtime</span><span>Support</span></div>
+                        <div class="card-actions"><a class="button" href="config.py">Inspect source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="data">
+                        <div class="card-top"><div class="tool-icon">09</div><span class="status research">planned</span></div>
+                        <h3>Project Runner</h3><div class="file">jim_rockies.py</div>
+                        <p>The documented top-level orchestration surface for coordinating the project’s analysis flow. The file is not present in this checkout yet.</p>
+                        <div class="meta"><span>Orchestration</span><span>Workflow</span><span>Not present</span></div>
+                        <div class="card-actions"><span class="source-link">No destination yet</span></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="display">
+                        <div class="card-top"><div class="tool-icon">10</div><span class="status ready">browser</span></div>
+                        <h3>Workflow Console</h3><div class="file">jimrockies.html</div>
+                        <p>An existing browser shell for the earlier tool flow. Useful as a reference while this directory becomes the new front door.</p>
+                        <div class="meta"><span>HTML</span><span>Legacy shell</span><span>Local page</span></div>
+                        <div class="card-actions"><a class="button" href="jimrockies.html">Open page</a><a class="source-link" href="jimrockies.html">Source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="display">
+                        <div class="card-top"><div class="tool-icon">11</div><span class="status ready">browser</span></div>
+                        <h3>PrizePicks View</h3><div class="file">prizepicks.html</div>
+                        <p>An existing front-end/display artifact for odds or market presentation, kept separate from the analysis modules.</p>
+                        <div class="meta"><span>HTML</span><span>Display artifact</span><span>Local page</span></div>
+                        <div class="card-actions"><a class="button" href="prizepicks.html">Open page</a><a class="source-link" href="prizepicks.html">Source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="data">
+                        <div class="card-top"><div class="tool-icon">12</div><span class="status ready">utility</span></div>
+                        <h3>Sampling Utility</h3><div class="file">get_test.py</div>
+                        <p>A small fetch, sample, and inspect utility used while debugging data inputs and acquisition flows.</p>
+                        <div class="meta"><span>Sampling</span><span>Debugging</span><span>Python</span></div>
+                        <div class="card-actions"><a class="button" href="get_test.py">Inspect source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="math">
+                        <div class="card-top"><div class="tool-icon">13</div><span class="status ready">tests</span></div>
+                        <h3>Decimal Math Tests</h3><div class="file">test_decimal_arb_math.py</div>
+                        <p>Regression protection for Decimal conversion, invalid input rejection, and the numerical contract.</p>
+                        <div class="meta"><span>Regression</span><span>Decimal</span><span>Correctness</span></div>
+                        <div class="card-actions"><a class="button" href="test_decimal_arb_math.py">Inspect tests</a></div>
+                    </article>
+                </div>
+            </section>
+
+            <aside class="note">
+                <div aria-hidden="true">↳</div>
+                <div><strong>Local execution boundary.</strong> The analytical tools now have browser entry points backed by the existing Python modules. Start <code>tools_server.py</code> locally to run them. Market acquisition and automated execution remain intentionally disconnected.</div>
+            </aside>
+        </main>
+
+        <footer>Jim Rockies · tools.html · directory first, calculations in their established layers.</footer>
+    </div>
+
+    <script>
+        const filters = document.querySelectorAll("[data-filter]");
+        const cards = document.querySelectorAll(".tool-card");
+
+        filters.forEach((filter) => {
+            filter.addEventListener("click", () => {
+                const selected = filter.dataset.filter;
+                filters.forEach((item) => item.setAttribute("aria-pressed", String(item === filter)));
+                cards.forEach((card) => {
+                    card.hidden = selected !== "all" && card.dataset.kind !== selected;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

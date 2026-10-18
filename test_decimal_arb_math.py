@@ -25,6 +25,11 @@ def test_arb_index_uses_decimal_math():
     assert isinstance(result, Decimal)
 
 
+def test_vig_and_fee_helpers_preserve_decimal_contract():
+    assert arb_math.apply_vig(Decimal("2.00")) == Decimal("1.90")
+    assert arb_math.apply_fee_decimal(Decimal("2.00"), Decimal("0.05")) == Decimal("1.9000")
+
+
 def test_invalid_multiplier_is_rejected():
     with pytest.raises(ValueError):
         arb_math.multiplier_to_decimal("1.00")
