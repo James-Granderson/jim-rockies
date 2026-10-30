@@ -1,5 +1,5 @@
 import urllib.request
-import config
+from core import config
 #python jim_rockies.py
 
 url = "PUT_THE_RUNDOWN_ENDPOINT_HERE"

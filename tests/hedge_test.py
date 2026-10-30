@@ -1,4 +1,4 @@
-import arb_math
+from core import arb_math
 
 
 if __name__ == "__main__":

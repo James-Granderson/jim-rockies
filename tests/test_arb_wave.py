@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from arb_wave import (
+from core.arb_wave import (
     fixed_stake_point,
     generate_stake_wave,
     generate_wave,

@@ -1,9 +1,15 @@
 import json
-import arb_math
+from pathlib import Path
+
+from . import arb_math
 
 
-def load_event(filename="test_data.json"):
-    data = open(filename).read()
+DATA_ROOT = Path(__file__).resolve().parent.parent / "data"
+
+
+def load_event(filename=None):
+    event_path = Path(filename) if filename else DATA_ROOT / "test_data.json"
+    data = event_path.read_text()
     payload = json.loads(data)
     return payload["events"][0]
 

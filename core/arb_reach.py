@@ -6,7 +6,7 @@ are delegated to arb_math.Odds.
 
 from decimal import Decimal, getcontext
 from typing import List, Optional, Tuple
-from arb_math import Odds, _to_decimal
+from .arb_math import Odds, _to_decimal
 
 getcontext().prec = 28
 
@@ -20,16 +20,21 @@ class Vig:
     """
 
     def __init__(self, assumed_vig: Decimal = Decimal("0.05")):
-        self.assumed_vig: Decimal = _to_decimal(assumed_vig)
+        self.assumed_vig: Decimal = self._validate(assumed_vig)
+
+    @staticmethod
+    def _validate(value: Decimal) -> Decimal:
+        vig = _to_decimal(value)
+        if not Decimal("0") <= vig < Decimal("1"):
+            raise ValueError(
+                "Vig must be a fraction from 0 up to (not including) 1, "
+                "e.g. 0.05 for 5%."
+            )
+        return vig
 
     def set_assumed_vig(self, new_vig: Decimal) -> None:
         """Mutates the assumed vig benchmark."""
-        val = _to_decimal(new_vig)
-        if val >= Decimal("1"):
-            val = val / Decimal("100")
-        if val < Decimal("0"):
-            raise ValueError("Assumed vig cannot be negative.")
-        self.assumed_vig = val
+        self.assumed_vig = self._validate(new_vig)
 
     @staticmethod
     def calculate_overround(prob_a: Decimal, prob_b: Decimal) -> Decimal:
@@ -81,7 +86,7 @@ class ReachReference:
     def use_observed_vig(self, prob_a: Decimal, prob_b: Decimal) -> Decimal:
         """Branch A: Deducts live observed market vig from 100% base."""
         overround = self.vig.calculate_overround(prob_a, prob_b)
-        if overround <= ONE_HUNDRED_PCT:
+        if overround < ONE_HUNDRED_PCT:
             edge = (ONE_HUNDRED_PCT - overround) * Decimal("100")
             raise ValueError(
                 f"You already have an arb! Market overround is {overround * 100:.2f}% "
@@ -125,8 +130,11 @@ class Reach:
         self.reference: ReachReference = reference if reference is not None else ReachReference()
 
         m = _to_decimal(target_margin)
-        if m >= Decimal("1"):
-            m = m / Decimal("100")
+        if not Decimal("0") <= m < Decimal("1"):
+            raise ValueError(
+                "Target margin must be a fraction from 0 up to (not including) 1, "
+                "e.g. 0.02 for 2%."
+            )
         self.target_margin: Decimal = m
 
     @property
@@ -231,7 +239,7 @@ if __name__ == "__main__":
         custom_vig = input("Enter assumed vig % (press Enter for default 5%): ").strip()
         try:
             if custom_vig:
-                ref.use_assumed_vig(Decimal(custom_vig))
+                ref.use_assumed_vig(Decimal(custom_vig) / Decimal("100"))
             else:
                 ref.use_assumed_vig()
         except ValueError as err:
@@ -250,7 +258,7 @@ if __name__ == "__main__":
 
     # 3. Target Cushion / Margin
     margin_in = input("\nTarget extra profit margin % (e.g., 2 for 2%, or Enter for 0%): ").strip()
-    margin = Decimal(margin_in) if margin_in else Decimal("0.00")
+    margin = Decimal(margin_in) / Decimal("100") if margin_in else Decimal("0.00")
 
     reach_engine = Reach(anchor, reference=ref, target_margin=margin)
 
@@ -272,7 +280,7 @@ if __name__ == "__main__":
         try:
             ideal_prob = reach_engine.ideal_probability * Decimal("100")
             ideal_dec = reach_engine.ideal_odds.decimal
-            print(f"Ideal (+{margin}% margin): <= {ideal_prob:.2f}% (Decimal {ideal_dec:.3f} | {to_american_str(ideal_dec)})")
+            print(f"Ideal (+{margin * 100}% margin): <= {ideal_prob:.2f}% (Decimal {ideal_dec:.3f} | {to_american_str(ideal_dec)})")
 
             print("\n--- Transition Spectrum (5 Ticks) ---")
             for idx, (p, odds) in enumerate(reach_engine.spectrum(5), 1):

@@ -3,8 +3,7 @@ from decimal import Decimal
 import pytest
 from decimal import Decimal
 
-import arb_math
-import hedge_range
+from core import arb_math, hedge_range
 
 
 def test_american_to_decimal_returns_decimal():

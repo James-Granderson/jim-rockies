@@ -71,6 +71,24 @@ The project is currently focused on establishing the underlying mathematical fra
 
 Jim Rockies is therefore structured as a quantitative research system for observing, representing, and analyzing sports-market prices and the payoff structures that result from them.
 
+## Repository structure
+
+The repository is organized by responsibility:
+
+- `core/` contains the Decimal-based odds, reach, wave, hedge, position, event, configuration, and display modules.
+- `acquisition/` contains scanner, scraper, and external API integration points.
+- `scripts/` contains ad-hoc sampling and inspection utilities.
+- `data/` contains local sample payloads used by the event tools.
+- `tests/` contains regression and focused behavior tests.
+- `docs/` contains tool notes, conceptual models, probability research, and project working notes.
+- `web/legacy/` contains older browser artifacts kept for reference; the active browser entrypoints remain `tools.html` and `tool.html`.
+
+The local browser bridge remains the root-level `tools_server.py`, so the normal startup command is unchanged:
+
+```text
+python3 tools_server.py
+```
+
 It's not a matter of whether or 
 not you are gambling.
 It's a matter of what you are gambling on

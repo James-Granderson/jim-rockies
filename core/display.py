@@ -1,6 +1,7 @@
 import json
+from pathlib import Path
 
-data = open("test_data.json").read()
+data = (Path(__file__).resolve().parent.parent / "data" / "test_data.json").read_text()
 payload = json.loads(data)
 
 for event in payload["events"]:

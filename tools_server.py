@@ -14,11 +14,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-import arb_math
-import arb_reach
-import arb_wave
-import event_arb
-import hedge_range
+from core import arb_math, arb_reach, arb_wave, event_arb, hedge_range, position_range
 
 
 ROOT = Path(__file__).resolve().parent
@@ -89,6 +85,10 @@ def calculate_arb_reach(payload: dict[str, Any]) -> dict[str, Any]:
     mode = payload.get("mode", "decimal")
     anchor = parse_odds(payload.get("anchor"), mode)
     board = parse_odds(payload.get("board"), mode)
+    if anchor.probability + board.probability < Decimal("1"):
+        raise ValueError(
+            "You already have an arbitrage opportunity; use Hedge Range instead."
+        )
     reference = arb_reach.ReachReference()
     reference_mode = payload.get("reference", "assumed")
     if reference_mode == "neutral":
@@ -96,12 +96,14 @@ def calculate_arb_reach(payload: dict[str, Any]) -> dict[str, Any]:
     elif reference_mode == "observed":
         reference.use_observed_vig(anchor.probability, board.probability)
     else:
-        reference.use_assumed_vig(decimal(payload.get("vig", "5"), "Assumed vig"))
+        reference.use_assumed_vig(
+            decimal(payload.get("vig", "5"), "Assumed vig") / Decimal("100")
+        )
 
     reach = arb_reach.Reach(
         anchor,
         reference=reference,
-        target_margin=decimal(payload.get("margin", "0"), "Target margin"),
+        target_margin=decimal(payload.get("margin", "0"), "Target margin") / Decimal("100"),
     )
     spectrum = [
         {"probability": probability, "decimal_odds": odds.decimal}
@@ -153,6 +155,23 @@ def calculate_event_arb(_: dict[str, Any]) -> dict[str, Any]:
     return event_arb.main()
 
 
+def calculate_position_range(payload: dict[str, Any]) -> dict[str, Any]:
+    odds_a = parse_odds(payload.get("odds_a"), payload.get("mode", "decimal"))
+    odds_b = parse_odds(payload.get("odds_b"), payload.get("mode", "decimal"))
+    result = position_range.evaluate_position(
+        original_stake=payload.get("original_stake"),
+        odds_a=odds_a.decimal,
+        odds_b=odds_b.decimal,
+        range_multiplier=payload.get("range_multiplier"),
+        candidate_points=int(payload.get("candidate_points", 11)),
+        target_profit_b=payload.get("target_profit_b", "0"),
+        fee_a=payload.get("fee_a", "0"),
+        fee_b=payload.get("fee_b", "0"),
+        spending_limit=payload.get("spending_limit") or None,
+    )
+    return vars(result)
+
+
 def calculate_arb_wave(payload: dict[str, Any]) -> dict[str, Any]:
     start_probability = decimal(payload.get("start_percent", "1"), "Start percentage") / 100
     end_probability = decimal(payload.get("end_percent", "99"), "End percentage") / 100
@@ -183,6 +202,7 @@ CALCULATORS = {
     "/api/arb-wave": calculate_arb_wave,
     "/api/hedge-range": calculate_hedge_range,
     "/api/event-arb": calculate_event_arb,
+    "/api/position-range": calculate_position_range,
 }
 
 

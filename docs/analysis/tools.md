@@ -84,6 +84,19 @@ What it does:
 
 Think of this as: "what should I stake on each side?"
 
+### position_range.py
+Purpose: analyze additional stake on the opposing side after side A has already been placed.
+
+What it does:
+- keeps the original stake fixed
+- evaluates the additional-stake range from 0.5 × N × X through N × X
+- calculates both outcome profits, break-even and target thresholds, and equal-payout balance
+- identifies an arbitrage candidate when available, otherwise labels a hedge recommendation
+
+Think of this as: "given what is already invested, how much more could I place on the other side?"
+
+This is intentionally separate from `hedge_range.py`, which divides a new total stake between both sides.
+
 ## Event-level and market tools
 
 ### event_arb.py
@@ -106,6 +119,19 @@ What it does:
 - prepares data for downstream analysis
 
 This is the ingestion layer.
+
+### site_open.py
+Purpose: observe public market pages in a real browser.
+
+What it does:
+- opens a public page through Chromium
+- reads price-looking lines from rendered page text
+- records the page's own WebSocket frame counts and samples
+- optionally watches the page without reloading or polling its API
+- saves a JSON snapshot and screenshot
+
+This is an experimental acquisition surface. It does not log in, place orders,
+evade bot detection, or establish arbitrage by itself.
 
 ### display.py
 Purpose: formatting and presentation helpers.

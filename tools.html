@@ -186,7 +186,7 @@
 <body>
     <div class="shell">
         <header class="topbar">
-            <a class="brand" href="jimrockies.html" aria-label="Jim Rockies home">
+            <a class="brand" href="web/legacy/jimrockies.html" aria-label="Jim Rockies home">
                 <span class="mark">JR</span>
                 <span>Jim Rockies</span>
             </a>
@@ -201,7 +201,7 @@
             </section>
 
             <section class="overview" aria-label="Tool directory summary">
-                <div class="overview-item"><strong>13</strong><span>catalogued components</span></div>
+                <div class="overview-item"><strong>15</strong><span>catalogued components</span></div>
                 <div class="overview-item"><strong>4</strong><span>analysis layers</span></div>
                 <div class="overview-item"><strong>3</strong><span>browser surfaces</span></div>
             </section>
@@ -225,70 +225,86 @@
                 <div class="tools-grid" id="tools-grid">
                     <article class="tool-card" data-kind="math">
                         <div class="card-top"><div class="tool-icon">01</div><span class="status ready">engine</span></div>
-                        <h3>Arb Math</h3><div class="file">arb_math.py</div>
+                        <h3>Arb Math</h3><div class="file">core/arb_math.py</div>
                         <p>The trusted numerical contract: odds conversion, validation, implied probability, arbitrage index, payouts, and required odds.</p>
                         <div class="meta"><span>Decimal</span><span>Input validation</span><span>Core layer</span></div>
-                        <div class="card-actions"><a class="button" href="tool.html?tool=arb-math">Use tool</a><a class="source-link" href="arb_math.py">Source</a></div>
+                        <div class="card-actions"><a class="button" href="tool.html?tool=arb-math">Use tool</a><a class="source-link" href="core/arb_math.py">Source</a></div>
                     </article>
 
                     <article class="tool-card" data-kind="analysis">
                         <div class="card-top"><div class="tool-icon">02</div><span class="status ready">terminal</span></div>
-                        <h3>Arb Reach</h3><div class="file">arb_reach.py</div>
+                        <h3>Arb Reach</h3><div class="file">core/arb_reach.py</div>
                         <p>Measures the opposing price needed to reach a target, using an assumed, observed, or neutral probability reference.</p>
                         <div class="meta"><span>Reference scale</span><span>Target margin</span><span>$100 anchor</span></div>
-                        <div class="card-actions"><a class="button" href="tool.html?tool=arb-reach">Use tool</a><a class="source-link" href="arb_reach.py">Source</a></div>
+                        <div class="card-actions"><a class="button" href="tool.html?tool=arb-reach">Use tool</a><a class="source-link" href="core/arb_reach.py">Source</a></div>
                     </article>
 
                     <article class="tool-card" data-kind="analysis">
                         <div class="card-top"><div class="tool-icon">03</div><span class="status ready">terminal</span></div>
-                        <h3>Arb Wave</h3><div class="file">arb_wave.py</div>
+                        <h3>Arb Wave</h3><div class="file">core/arb_wave.py</div>
                         <p>Sweeps probability states to show the required stake and total payout for a fixed net-profit target.</p>
                         <div class="meta"><span>1% default</span><span>Target profit</span><span>Single side</span></div>
-                        <div class="card-actions"><a class="button" href="tool.html?tool=arb-wave">Use tool</a><a class="source-link" href="arb_wave.py">Source</a></div>
+                        <div class="card-actions"><a class="button" href="tool.html?tool=arb-wave">Use tool</a><a class="source-link" href="core/arb_wave.py">Source</a></div>
                     </article>
 
                     <article class="tool-card" data-kind="analysis">
                         <div class="card-top"><div class="tool-icon">04</div><span class="status ready">terminal</span></div>
-                        <h3>Hedge Range</h3><div class="file">hedge_range.py</div>
+                        <h3>Hedge Range</h3><div class="file">core/hedge_range.py</div>
                         <p>Maps every stake split for two sides so arbitrage, high-EV, and maximum-profit positions remain visible as choices.</p>
                         <div class="meta"><span>Stake splits</span><span>Profit / loss</span><span>Decision space</span></div>
-                        <div class="card-actions"><a class="button" href="tool.html?tool=hedge-range">Use tool</a><a class="source-link" href="hedge_range.py">Source</a></div>
+                        <div class="card-actions"><a class="button" href="tool.html?tool=hedge-range">Use tool</a><a class="source-link" href="core/hedge_range.py">Source</a></div>
                     </article>
 
                     <article class="tool-card" data-kind="analysis">
                         <div class="card-top"><div class="tool-icon">05</div><span class="status ready">terminal</span></div>
-                        <h3>Event Arb</h3><div class="file">event_arb.py</div>
+                        <h3>Position Range</h3><div class="file">core/position_range.py</div>
+                        <p>Keeps an existing side A stake fixed while evaluating additional opposing stake, thresholds, equal-payout balance, and hedge or arbitrage recommendations.</p>
+                        <div class="meta"><span>Existing position</span><span>Additional H</span><span>Fees</span></div>
+                        <div class="card-actions"><a class="button" href="tool.html?tool=position-range">Use tool</a><a class="source-link" href="core/position_range.py">Source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="analysis">
+                        <div class="card-top"><div class="tool-icon">06</div><span class="status ready">terminal</span></div>
+                        <h3>Event Arb</h3><div class="file">core/event_arb.py</div>
                         <p>Loads an event payload, finds the best away and home prices, then evaluates the resulting market relationship.</p>
                         <div class="meta"><span>Event payload</span><span>Best odds</span><span>Market check</span></div>
-                        <div class="card-actions"><a class="button" href="tool.html?tool=event-arb">Use tool</a><a class="source-link" href="event_arb.py">Source</a></div>
+                        <div class="card-actions"><a class="button" href="tool.html?tool=event-arb">Use tool</a><a class="source-link" href="core/event_arb.py">Source</a></div>
                     </article>
 
                     <article class="tool-card" data-kind="data">
-                        <div class="card-top"><div class="tool-icon">06</div><span class="status research">research</span></div>
-                        <h3>Scraper</h3><div class="file">scraper.py</div>
+                        <div class="card-top"><div class="tool-icon">07</div><span class="status research">research</span></div>
+                        <h3>Scraper</h3><div class="file">acquisition/scraper.py</div>
                         <p>The intended acquisition boundary for sportsbook and market data. It is currently a research surface, not a connected scanner.</p>
                         <div class="meta"><span>Ingestion</span><span>External data</span><span>Not wired</span></div>
-                        <div class="card-actions"><a class="button" href="scraper.py">Inspect source</a></div>
+                        <div class="card-actions"><a class="button" href="acquisition/scraper.py">Inspect source</a></div>
+                    </article>
+
+                    <article class="tool-card" data-kind="data">
+                        <div class="card-top"><div class="tool-icon">08</div><span class="status research">experimental</span></div>
+                        <h3>Site Observer</h3><div class="file">acquisition/site_open.py</div>
+                        <p>Opens a public market page in Chromium, records rendered price lines and page-owned WebSocket activity, and saves a snapshot.</p>
+                        <div class="meta"><span>Public pages</span><span>WebSockets</span><span>No execution</span></div>
+                        <div class="card-actions"><a class="button" href="acquisition/site_open.py">Inspect source</a></div>
                     </article>
 
                     <article class="tool-card" data-kind="display">
-                        <div class="card-top"><div class="tool-icon">07</div><span class="status ready">helper</span></div>
-                        <h3>Display</h3><div class="file">display.py</div>
+                        <div class="card-top"><div class="tool-icon">09</div><span class="status ready">helper</span></div>
+                        <h3>Display</h3><div class="file">core/display.py</div>
                         <p>Formatting helpers for readable reports and financial values. Presentation stays separate from the numerical engine.</p>
                         <div class="meta"><span>Formatting</span><span>Reports</span><span>Output layer</span></div>
-                        <div class="card-actions"><a class="button" href="display.py">Inspect source</a></div>
+                        <div class="card-actions"><a class="button" href="core/display.py">Inspect source</a></div>
                     </article>
 
                     <article class="tool-card" data-kind="data">
-                        <div class="card-top"><div class="tool-icon">08</div><span class="status ready">config</span></div>
-                        <h3>Configuration</h3><div class="file">config.py</div>
+                        <div class="card-top"><div class="tool-icon">10</div><span class="status ready">config</span></div>
+                        <h3>Configuration</h3><div class="file">core/config.py</div>
                         <p>Holds runtime settings and project defaults used by the Python workflow.</p>
                         <div class="meta"><span>Defaults</span><span>Runtime</span><span>Support</span></div>
-                        <div class="card-actions"><a class="button" href="config.py">Inspect source</a></div>
+                        <div class="card-actions"><a class="button" href="core/config.py">Inspect source</a></div>
                     </article>
 
                     <article class="tool-card" data-kind="data">
-                        <div class="card-top"><div class="tool-icon">09</div><span class="status research">planned</span></div>
+                        <div class="card-top"><div class="tool-icon">11</div><span class="status research">planned</span></div>
                         <h3>Project Runner</h3><div class="file">jim_rockies.py</div>
                         <p>The documented top-level orchestration surface for coordinating the project’s analysis flow. The file is not present in this checkout yet.</p>
                         <div class="meta"><span>Orchestration</span><span>Workflow</span><span>Not present</span></div>
@@ -296,35 +312,35 @@
                     </article>
 
                     <article class="tool-card" data-kind="display">
-                        <div class="card-top"><div class="tool-icon">10</div><span class="status ready">browser</span></div>
-                        <h3>Workflow Console</h3><div class="file">jimrockies.html</div>
+                        <div class="card-top"><div class="tool-icon">12</div><span class="status ready">browser</span></div>
+                        <h3>Workflow Console</h3><div class="file">web/legacy/jimrockies.html</div>
                         <p>An existing browser shell for the earlier tool flow. Useful as a reference while this directory becomes the new front door.</p>
                         <div class="meta"><span>HTML</span><span>Legacy shell</span><span>Local page</span></div>
-                        <div class="card-actions"><a class="button" href="jimrockies.html">Open page</a><a class="source-link" href="jimrockies.html">Source</a></div>
+                        <div class="card-actions"><a class="button" href="web/legacy/jimrockies.html">Open page</a><a class="source-link" href="web/legacy/jimrockies.html">Source</a></div>
                     </article>
 
                     <article class="tool-card" data-kind="display">
-                        <div class="card-top"><div class="tool-icon">11</div><span class="status ready">browser</span></div>
-                        <h3>PrizePicks View</h3><div class="file">prizepicks.html</div>
+                        <div class="card-top"><div class="tool-icon">13</div><span class="status ready">browser</span></div>
+                        <h3>PrizePicks View</h3><div class="file">web/legacy/prizepicks.html</div>
                         <p>An existing front-end/display artifact for odds or market presentation, kept separate from the analysis modules.</p>
                         <div class="meta"><span>HTML</span><span>Display artifact</span><span>Local page</span></div>
-                        <div class="card-actions"><a class="button" href="prizepicks.html">Open page</a><a class="source-link" href="prizepicks.html">Source</a></div>
+                        <div class="card-actions"><a class="button" href="web/legacy/prizepicks.html">Open page</a><a class="source-link" href="web/legacy/prizepicks.html">Source</a></div>
                     </article>
 
                     <article class="tool-card" data-kind="data">
-                        <div class="card-top"><div class="tool-icon">12</div><span class="status ready">utility</span></div>
-                        <h3>Sampling Utility</h3><div class="file">get_test.py</div>
+                        <div class="card-top"><div class="tool-icon">14</div><span class="status ready">utility</span></div>
+                        <h3>Sampling Utility</h3><div class="file">scripts/get_test.py</div>
                         <p>A small fetch, sample, and inspect utility used while debugging data inputs and acquisition flows.</p>
                         <div class="meta"><span>Sampling</span><span>Debugging</span><span>Python</span></div>
-                        <div class="card-actions"><a class="button" href="get_test.py">Inspect source</a></div>
+                        <div class="card-actions"><a class="button" href="scripts/get_test.py">Inspect source</a></div>
                     </article>
 
                     <article class="tool-card" data-kind="math">
-                        <div class="card-top"><div class="tool-icon">13</div><span class="status ready">tests</span></div>
-                        <h3>Decimal Math Tests</h3><div class="file">test_decimal_arb_math.py</div>
+                        <div class="card-top"><div class="tool-icon">15</div><span class="status ready">tests</span></div>
+                        <h3>Decimal Math Tests</h3><div class="file">tests/test_decimal_arb_math.py</div>
                         <p>Regression protection for Decimal conversion, invalid input rejection, and the numerical contract.</p>
                         <div class="meta"><span>Regression</span><span>Decimal</span><span>Correctness</span></div>
-                        <div class="card-actions"><a class="button" href="test_decimal_arb_math.py">Inspect tests</a></div>
+                        <div class="card-actions"><a class="button" href="tests/test_decimal_arb_math.py">Inspect tests</a></div>
                     </article>
                 </div>
             </section>

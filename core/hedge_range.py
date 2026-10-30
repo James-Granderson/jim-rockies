@@ -1,6 +1,6 @@
 from decimal import Decimal, InvalidOperation
 
-import arb_math
+from . import arb_math
 
 
 RESET = "\033[0m"
