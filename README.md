@@ -89,6 +89,3 @@ The local browser bridge remains the root-level `tools_server.py`, so the normal
 python3 tools_server.py
 ```
 
-It's not a matter of whether or 
-not you are gambling.
-It's a matter of what you are gambling on
