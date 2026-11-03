@@ -115,7 +115,9 @@ The question therefore becomes one of accumulation. What information can be reta
 
 Over time, this accumulated knowledge becomes more important than any individual result.
 
-The objective is to generate real production over time after observation, rather than merely asking will something happen or not tonight.
+The objective is to generate real insight over time after observation, as we seek to inspect what happens regularly rather than simply asking will something happen or not tonight.
+
+The goal is to soon be able to be asked a question on a given probability then to be able to give one the most enlightened answer on the greatest expected occurrence based on available data over time.
 
 
 Decomposition and Conditional Probability
