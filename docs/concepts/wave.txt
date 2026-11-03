@@ -22,7 +22,7 @@ The multiplier is the bridge between probability and the money values.
 
 From there, Wave has two operations.
 
-PROBABILITY + STAKE → PAYOUT
+PROBABILITY known with STAKE → PAYOUT
 
 If we know the probability and the amount of stake, Wave finds the payout.
 
